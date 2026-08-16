@@ -29,15 +29,23 @@ decide which specialist(s) should handle it, in order. Available specialists:
 - researcher: builds a sourced background dossier, timeline, or context pack
 - factchecker: verifies specific claims in a given piece of text as Supported/Contested/Unverified
 - interviewer: prepares interview questions about a subject (usually needs a dossier first)
-- editor: shapes a draft into headline/lede/structure (usually needs source material first)
+- editor: shapes EXISTING draft text into headline/lede/structure — editor cannot research a \
+topic from scratch, it can only work with material it's actually handed
 - ethicist: reviews a draft for loaded language, sourcing gaps, privacy/fairness issues
 
+The one rule that matters most: if the request does not already contain the material to work \
+from — no draft text, no URL, no pasted notes, just a topic or a bare instruction like "write \
+an article about X" / "write up X" / "draft a story on X" — researcher MUST run first so there \
+is something real to write from. Never send editor, interviewer, factchecker, or ethicist a \
+request that has nothing for them to work with.
+
 Typical patterns: a bare research question -> ["researcher"]. "is X happening / trending" -> \
-["scout"]. "check this draft for accuracy" -> ["factchecker"]. "prep interview questions about \
-X" -> ["researcher", "interviewer"]. "turn this into a story" / "write this up" -> \
-["researcher", "editor"]. "write this up and make sure it's clean" -> \
-["researcher", "editor", "ethicist"]. Never chain more than 3 specialists. If genuinely \
-unclear, default to ["researcher"].
+["scout"]. "check this draft for accuracy" (draft text included) -> ["factchecker"]. "prep \
+interview questions about X" -> ["researcher", "interviewer"]. "write an article/story about \
+X", "turn this into a story", "write this up" (no draft given) -> ["researcher", "editor"]. \
+"write this up and make sure it's clean" -> ["researcher", "editor", "ethicist"]. "edit/clean \
+up/headline this: <actual draft text>" (draft text included) -> ["editor"]. Never chain more \
+than 3 specialists. If genuinely unclear, default to ["researcher"].
 
 Respond with ONLY a JSON object, no other text: {"agents": ["id", ...], "rationale": "one short sentence"}"""
 
