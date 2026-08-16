@@ -70,6 +70,30 @@ export interface AnswerDoneEvent extends BaseEvent {
   sources: SourceRef[]
 }
 
+export interface TranscriptSegment {
+  start: number
+  end: number
+  text: string
+  speaker: string
+}
+
+export interface PullQuote {
+  text: string
+  start: number
+  end: number
+  speaker: string
+}
+
+export interface TranscriptReadyEvent extends BaseEvent {
+  type: 'transcript_ready'
+  title: string
+  language: string
+  duration: number
+  segments: TranscriptSegment[]
+  pull_quotes: PullQuote[]
+  speaker_note: string
+}
+
 export interface ErrorEvent extends BaseEvent {
   type: 'error'
   message: string
@@ -90,6 +114,7 @@ export type AgentEvent =
   | RouteDecidedEvent
   | ModelSelectedEvent
   | AnswerDoneEvent
+  | TranscriptReadyEvent
   | ErrorEvent
   | RunDoneEvent
 

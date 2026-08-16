@@ -4,11 +4,15 @@ import { streamCrew, streamRun } from './lib/sse'
 import Composer from './panes/Composer'
 import EvidenceDrawer from './panes/EvidenceDrawer'
 import StoryDesk from './panes/StoryDesk'
+import Studio from './panes/Studio'
 import TracePane from './panes/TracePane'
 import type { AgentEvent, AgentInfo, SourceRef } from './types/events'
 import type { RunHistoryEntry } from './types/history'
 
+type Tab = 'desk' | 'studio'
+
 export default function App() {
+  const [tab, setTab] = useState<Tab>('desk')
   const [agentsList, setAgentsList] = useState<AgentInfo[]>([])
   const [selectedAgentId, setSelectedAgentId] = useState('researcher')
   const [events, setEvents] = useState<AgentEvent[]>([])
@@ -30,9 +34,9 @@ export default function App() {
   const agentsById = useMemo(() => Object.fromEntries(agentsList.map((a) => [a.id, a])), [agentsList])
 
   const handleRun = useCallback(
-    async (prompt: string) => {
+    async (prompt: string, agentOverride?: string) => {
       const entryId = crypto.randomUUID()
-      const agentAtStart = selectedAgentId
+      const agentAtStart = agentOverride ?? selectedAgentId
       setActiveEntryId(entryId)
       setEvents([])
       setSources(new Map())
@@ -102,6 +106,17 @@ export default function App() {
     setSources(map)
     setSelectedAgentId(entry.agentId)
     setDeskOpen(false)
+    setTab('desk')
+  }
+
+  // From Studio: "send this transcript to Fact-Checker/Interviewer" — sets
+  // the agent explicitly rather than relying on selectedAgentId, since
+  // setSelectedAgentId + handleRun in the same tick would otherwise race
+  // React's state batching and run against the *previous* agent.
+  function handleSendToAgent(agentId: string, prompt: string) {
+    setSelectedAgentId(agentId)
+    setTab('desk')
+    handleRun(prompt, agentId)
   }
 
   const knownIndices = new Set(sources.keys())
@@ -109,11 +124,27 @@ export default function App() {
   return (
     <div className="flex h-screen flex-col bg-(--color-ink) text-(--color-paper)">
       <header className="flex items-center justify-between border-b border-(--color-border) px-6 py-3 md:px-10">
-        <div className="flex items-baseline gap-3">
-          <h1 className="font-(family-name:--font-serif) text-2xl italic tracking-tight">NEWSROOM</h1>
-          <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.2em] text-(--color-amber)">
-            agentic desk
-          </span>
+        <div className="flex items-baseline gap-4">
+          <div className="flex items-baseline gap-3">
+            <h1 className="font-(family-name:--font-serif) text-2xl italic tracking-tight">NEWSROOM</h1>
+            <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.2em] text-(--color-amber)">
+              agentic desk
+            </span>
+          </div>
+          <nav className="flex gap-1">
+            {(['desk', 'studio'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`rounded px-2.5 py-1 font-(family-name:--font-mono) text-xs capitalize transition-colors ${
+                  tab === t ? 'bg-(--color-surface-raised) text-(--color-paper)' : 'text-(--color-muted) hover:text-(--color-paper)'
+                }`}
+              >
+                {t === 'studio' ? '🎙 studio' : t}
+              </button>
+            ))}
+          </nav>
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -127,25 +158,32 @@ export default function App() {
         </div>
       </header>
 
-      <Composer
-        agentsList={agentsList}
-        selectedAgentId={selectedAgentId}
-        onSelectAgent={setSelectedAgentId}
-        running={running}
-        onRun={handleRun}
-        onStop={handleStop}
-      />
-
-      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[1fr_320px]">
-        <TracePane
-          events={events}
-          running={running}
-          knownIndices={knownIndices}
-          onCiteClick={handleCiteClick}
-          agentsById={agentsById}
-        />
-        <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
-      </div>
+      {tab === 'desk' ? (
+        <>
+          <Composer
+            agentsList={agentsList}
+            selectedAgentId={selectedAgentId}
+            onSelectAgent={setSelectedAgentId}
+            running={running}
+            onRun={handleRun}
+            onStop={handleStop}
+          />
+          <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[1fr_320px]">
+            <TracePane
+              events={events}
+              running={running}
+              knownIndices={knownIndices}
+              onCiteClick={handleCiteClick}
+              agentsById={agentsById}
+            />
+            <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
+          </div>
+        </>
+      ) : (
+        <div className="min-h-0 flex-1">
+          <Studio onSendToAgent={handleSendToAgent} />
+        </div>
+      )}
 
       <StoryDesk
         open={deskOpen}

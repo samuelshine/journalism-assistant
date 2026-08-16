@@ -1,6 +1,6 @@
 // Minimal SSE client over fetch()+ReadableStream. We don't use the native
-// EventSource because it can't send a POST body, and the run prompt is
-// arbitrary-length text — a query string is the wrong place for it.
+// EventSource because it can't send a POST body, and neither the run
+// prompt nor an audio upload belongs in a query string.
 import type { AgentEvent } from '../types/events'
 
 export async function streamRun(
@@ -19,6 +19,24 @@ export async function streamCrew(prompt: string, onEvent: (event: AgentEvent) =>
   return streamFrom('/api/crew', { prompt }, onEvent, signal)
 }
 
+export async function streamMediaUrl(url: string, onEvent: (event: AgentEvent) => void, signal?: AbortSignal): Promise<void> {
+  return streamFrom('/api/media/youtube', { url }, onEvent, signal)
+}
+
+// A dropped file or a mic-recorded Blob — same endpoint, ffmpeg reads
+// either. The field name must match FastAPI's `file: UploadFile` param.
+export async function streamMediaUpload(
+  file: File | Blob,
+  filename: string,
+  onEvent: (event: AgentEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const form = new FormData()
+  form.append('file', file, filename)
+  const res = await fetch('/api/media/upload', { method: 'POST', body: form, signal })
+  await consumeSSE(res, onEvent)
+}
+
 async function streamFrom(
   url: string,
   body: Record<string, string>,
@@ -31,8 +49,12 @@ async function streamFrom(
     body: JSON.stringify(body),
     signal,
   })
+  await consumeSSE(res, onEvent)
+}
+
+async function consumeSSE(res: Response, onEvent: (event: AgentEvent) => void): Promise<void> {
   if (!res.ok || !res.body) {
-    throw new Error(`Run request failed: ${res.status}`)
+    throw new Error(`Request failed: ${res.status}`)
   }
 
   const reader = res.body.getReader()

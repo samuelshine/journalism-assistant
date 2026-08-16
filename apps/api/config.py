@@ -27,6 +27,14 @@ MODEL_FAST = os.getenv("MODEL_FAST", "gemma4:e4b")
 MODEL_EMBED = os.getenv("MODEL_EMBED", "nomic-embed-text")
 
 DB_PATH = ROOT / "apps" / "api" / "store" / "newsroom.db"
+MEDIA_UPLOAD_DIR = ROOT / "apps" / "api" / "media" / "uploads"
+
+# faster-whisper: 'base' transcribes ~16x realtime on CPU int8 on an M-series
+# Mac — plenty fast for a class-length clip. Bump to 'small' in .env for
+# better accuracy on noisier real recordings, at roughly half the speed.
+WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
+WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "cpu")
+WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
 
 # Optional free-tier keys. All tools work without these; presence just
 # unlocks a richer source.

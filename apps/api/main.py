@@ -10,8 +10,11 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+import shutil
+import uuid
+
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -20,9 +23,12 @@ from sse_starlette.sse import EventSourceResponse
 import agents
 import config
 import crew
+import media_pipeline
 import ollama_client
 import orchestrator
 from events import sse_format
+from media.transcribe import is_warm as whisper_is_warm
+from media.transcribe import warm as warm_whisper
 from store import db
 from tools.web_ua import WIKIMEDIA_UA
 
@@ -86,7 +92,16 @@ async def health():
     except Exception as e:  # noqa: BLE001
         checks["external_api"] = {"ok": False, "error": str(e)}
 
-    overall_ok = all(c.get("ok") for c in checks.values())
+    # ffmpeg — required for every media/studio pipeline step
+    ffmpeg_path = shutil.which("ffmpeg")
+    checks["ffmpeg"] = {"ok": ffmpeg_path is not None, "path": ffmpeg_path}
+
+    # whisper — reports whether the model is warm, not just installed;
+    # not being warm yet isn't a failure (it loads on first real use), so
+    # this doesn't count toward overall_ok the way the other checks do
+    checks["whisper"] = {"ok": True, "warm": whisper_is_warm(), "model": config.WHISPER_MODEL_SIZE}
+
+    overall_ok = all(c.get("ok") for k, c in checks.items() if k != "whisper")
     return {"ok": overall_ok, "checks": checks, "demo_mode": config.DEMO_MODE}
 
 
@@ -103,6 +118,7 @@ async def warm_models():
             pass  # health page will surface the real problem if any
 
     asyncio.create_task(_warm())
+    asyncio.create_task(warm_whisper())
 
 
 @app.get("/api/agents")
@@ -137,6 +153,39 @@ class CrewRequest(BaseModel):
 async def run_crew(req: CrewRequest):
     async def event_stream():
         async for event in crew.run_crew(req.prompt):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+@app.post("/api/media/upload")
+async def media_upload(file: UploadFile = File(...)):
+    """Handles both a dropped file and a browser mic recording — a
+    MediaRecorder blob (webm/opus) is just another ffmpeg-readable input,
+    so there's no separate mic endpoint."""
+    config.MEDIA_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    suffix = Path(file.filename or "").suffix or ".webm"
+    dest = config.MEDIA_UPLOAD_DIR / f"upload_{uuid.uuid4().hex[:10]}{suffix}"
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(400, "Empty upload")
+    dest.write_bytes(contents)
+
+    async def event_stream():
+        async for event in media_pipeline.process_upload(dest, file.filename or dest.name):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+class MediaUrlRequest(BaseModel):
+    url: str
+
+
+@app.post("/api/media/youtube")
+async def media_youtube(req: MediaUrlRequest):
+    async def event_stream():
+        async for event in media_pipeline.process_url(req.url):
             yield sse_format(event)
 
     return EventSourceResponse(event_stream())

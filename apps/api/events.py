@@ -97,6 +97,35 @@ class AnswerDoneEvent(BaseEvent):
     sources: list[dict[str, Any]] = Field(default_factory=list)
 
 
+class TranscriptSegmentDict(BaseModel):
+    start: float
+    end: float
+    text: str
+    speaker: str
+
+
+class PullQuoteDict(BaseModel):
+    text: str
+    start: float
+    end: float
+    speaker: str
+
+
+class TranscriptReadyEvent(BaseEvent):
+    """A media pipeline run's final output — the studio-pane equivalent of
+    AnswerDoneEvent. Speaker labels are a pause-based heuristic, not
+    verified diarization — `speaker_note` carries that disclosure through
+    to the UI rather than leaving it implicit."""
+
+    type: Literal["transcript_ready"] = "transcript_ready"
+    title: str
+    language: str
+    duration: float
+    segments: list[TranscriptSegmentDict]
+    pull_quotes: list[PullQuoteDict]
+    speaker_note: str = "Speaker labels are estimated from pauses, not verified voice identification."
+
+
 class ErrorEvent(BaseEvent):
     type: Literal["error"] = "error"
     message: str
@@ -118,6 +147,7 @@ AgentEvent = (
     | ModelSelectedEvent
     | AnswerTokenEvent
     | AnswerDoneEvent
+    | TranscriptReadyEvent
     | ErrorEvent
     | RunDoneEvent
 )
