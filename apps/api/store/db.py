@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS briefs (
     text TEXT NOT NULL,
     sources TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS articles (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    body_markdown TEXT NOT NULL,
+    sources TEXT NOT NULL,
+    origin_run_id TEXT,
+    created_at REAL NOT NULL,
+    updated_at REAL NOT NULL
+);
 """
 
 

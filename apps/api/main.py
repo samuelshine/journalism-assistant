@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 import agents
+import article_ops
 import config
 import crew
 import hallucination_lab
@@ -31,6 +32,7 @@ from beats import scheduler as beat_scheduler
 from events import sse_format
 from media.transcribe import is_warm as whisper_is_warm
 from media.transcribe import warm as warm_whisper
+from store import articles as articles_store
 from store import beats as beats_store
 from store import db
 from tools.web_ua import WIKIMEDIA_UA
@@ -242,6 +244,80 @@ async def run_beat_now(beat_id: str):
 
     async def event_stream():
         async for event in beat_scheduler.run_beat_now(beat_id):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+class CreateArticleRequest(BaseModel):
+    title: str
+    body_markdown: str
+    sources: list[dict] = []
+    origin_run_id: str | None = None
+
+
+@app.post("/api/articles")
+async def create_article(req: CreateArticleRequest):
+    return articles_store.create_article(req.title, req.body_markdown, req.sources, req.origin_run_id)
+
+
+@app.get("/api/articles")
+async def list_articles():
+    return articles_store.list_articles()
+
+
+@app.get("/api/articles/{article_id}")
+async def get_article(article_id: str):
+    article = articles_store.get_article(article_id)
+    if article is None:
+        raise HTTPException(404, "Article not found")
+    return article
+
+
+class UpdateArticleRequest(BaseModel):
+    title: str | None = None
+    body_markdown: str | None = None
+
+
+@app.patch("/api/articles/{article_id}")
+async def update_article(article_id: str, req: UpdateArticleRequest):
+    article = articles_store.update_article(article_id, title=req.title, body_markdown=req.body_markdown)
+    if article is None:
+        raise HTTPException(404, "Article not found")
+    return article
+
+
+@app.delete("/api/articles/{article_id}")
+async def delete_article(article_id: str):
+    articles_store.delete_article(article_id)
+    return {"ok": True}
+
+
+class ArticleInstructionRequest(BaseModel):
+    instruction: str
+
+
+@app.post("/api/articles/{article_id}/sections")
+async def article_add_section(article_id: str, req: ArticleInstructionRequest):
+    article = articles_store.get_article(article_id)
+    if article is None:
+        raise HTTPException(404, "Article not found")
+
+    async def event_stream():
+        async for event in article_ops.add_section(article, req.instruction):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+@app.post("/api/articles/{article_id}/revise")
+async def article_revise(article_id: str, req: ArticleInstructionRequest):
+    article = articles_store.get_article(article_id)
+    if article is None:
+        raise HTTPException(404, "Article not found")
+
+    async def event_stream():
+        async for event in article_ops.propose_revision(article, req.instruction):
             yield sse_format(event)
 
     return EventSourceResponse(event_stream())
