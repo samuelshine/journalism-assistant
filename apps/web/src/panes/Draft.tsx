@@ -3,6 +3,7 @@ import AnswerView from '../components/AnswerView'
 import NotebookEntry from '../components/NotebookEntry'
 import { streamArticleRevise, streamArticleSection } from '../lib/sse'
 import { buildNotebook } from '../lib/notebook'
+import { buildArticleDocx, buildArticleMarkdown, buildArticlePlainText, downloadBlob, downloadMarkdown } from '../lib/export'
 import type { AgentEvent, AgentInfo, SourceRef } from '../types/events'
 import type { Article } from '../types/articles'
 import EvidenceDrawer from './EvidenceDrawer'
@@ -14,6 +15,14 @@ interface Props {
 }
 
 type ToolMode = 'section' | 'revise' | null
+
+function slugify(title: string): string {
+  const s = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return s || 'draft'
+}
 
 function timeAgo(ts: number): string {
   const seconds = Math.round(Date.now() / 1000 - ts)
@@ -52,7 +61,13 @@ function DraftList({
               key={a.id}
               className={`group rounded-sm px-2 py-1.5 ${a.id === activeId ? 'bg-(--color-highlight)/40' : 'hover:bg-(--color-paper-sunken)'}`}
             >
-              <button type="button" onClick={() => onSelect(a.id)} className="block w-full text-left">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelect(a.id)}
+                onKeyDown={(e) => e.key === 'Enter' && onSelect(a.id)}
+                className="block w-full cursor-pointer text-left"
+              >
                 <div className="line-clamp-2 font-(family-name:--font-serif) text-[13.5px] text-(--color-ink)">{a.title || 'Untitled'}</div>
                 <div className="mt-0.5 flex items-center justify-between font-(family-name:--font-sans) text-[10px] text-(--color-ink-faint)">
                   <span>{timeAgo(a.updated_at)}</span>
@@ -67,7 +82,7 @@ function DraftList({
                     remove
                   </button>
                 </div>
-              </button>
+              </div>
             </div>
           ))}
         </div>
@@ -93,6 +108,20 @@ export default function Draft({ activeArticleId, onActiveArticleHandled, agentsB
   const [justAppended, setJustAppended] = useState<string | null>(null)
   const [revisionProposal, setRevisionProposal] = useState<{ text: string; sources: SourceRef[] } | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const [exportOpen, setExportOpen] = useState(false)
+
+  async function exportArticle(format: 'md' | 'txt' | 'docx') {
+    if (!active) return
+    setExportOpen(false)
+    const slug = slugify(active.title)
+    if (format === 'md') {
+      downloadMarkdown(slug, buildArticleMarkdown(active))
+    } else if (format === 'txt') {
+      downloadBlob(`${slug}.txt`, new Blob([buildArticlePlainText(active)], { type: 'text/plain' }))
+    } else {
+      downloadBlob(`${slug}.docx`, await buildArticleDocx(active))
+    }
+  }
 
   function handleCiteClick(index: number) {
     setHighlighted(index)
@@ -331,6 +360,44 @@ export default function Draft({ activeArticleId, onActiveArticleHandled, agentsB
               >
                 Ask for a revision
               </button>
+
+              <div className="relative ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setExportOpen((v) => !v)}
+                  className="font-(family-name:--font-sans) text-[12px] font-medium text-(--color-ink-soft) hover:text-(--color-ink)"
+                >
+                  Export ▾
+                </button>
+                {exportOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setExportOpen(false)} />
+                    <div className="absolute right-0 z-20 mt-1.5 w-44 rounded-sm border border-(--color-rule) bg-(--color-paper-raised) py-1 shadow-md">
+                      <button
+                        type="button"
+                        onClick={() => exportArticle('md')}
+                        className="block w-full px-3 py-1.5 text-left font-(family-name:--font-sans) text-[12.5px] text-(--color-ink) hover:bg-(--color-paper-sunken)"
+                      >
+                        Markdown (.md)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => exportArticle('txt')}
+                        className="block w-full px-3 py-1.5 text-left font-(family-name:--font-sans) text-[12.5px] text-(--color-ink) hover:bg-(--color-paper-sunken)"
+                      >
+                        Plain text (.txt)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => exportArticle('docx')}
+                        className="block w-full px-3 py-1.5 text-left font-(family-name:--font-sans) text-[12.5px] text-(--color-ink) hover:bg-(--color-paper-sunken)"
+                      >
+                        Word document (.docx)
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
 
               {toolMode && (
                 <div className="flex w-full items-center gap-2">
