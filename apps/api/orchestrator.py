@@ -9,6 +9,7 @@ this app is built to teach.
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from typing import Any, AsyncIterator
 
@@ -57,6 +58,21 @@ class SourceRegistry:
 
     def as_dicts(self) -> list[dict[str, Any]]:
         return [{"index": i, **s.to_dict()} for i, s in self.all()]
+
+
+_LEAKED_TOOL_CALL_RE = re.compile(r'</?tool_call>|\{\s*"name"\s*:\s*"')
+
+
+def _looks_like_leaked_tool_call(text: str) -> bool:
+    """Ollama's chat template is supposed to parse a tool-call attempt into
+    message.tool_calls, never into plain content — but a malformed attempt
+    (confirmed live: qwen2.5:14b emitting raw '{"name": ..., "arguments":
+    ...}' JSON plus stray tokens, wrapped in a literal </tool_call>) can
+    leak through as ordinary text instead. Treating that as a real answer
+    would surface garbage to the user with no indication anything went
+    wrong — worth catching and retrying the same way a genuinely empty
+    completion already is."""
+    return bool(_LEAKED_TOOL_CALL_RE.search(text))
 
 
 def _tool_result_content(summary: str, ok: bool, error: str | None, cited: list[tuple[int, Source]]) -> str:
@@ -110,6 +126,12 @@ async def run(
             # template silently drops. A same-conditions retry reproduces the
             # same failure; dropping the tools schema on retry — we only need
             # plain text at this point anyway — reliably breaks the loop.
+            #
+            # A related failure (also confirmed live, on the Interviewer):
+            # the malformed attempt isn't always dropped — sometimes it leaks
+            # through as content instead, e.g. raw '{"name": "wikidata_entity",
+            # "arguments": {...}}' text wrapped in a literal </tool_call>.
+            # That's not a real answer either, so it gets the same retry.
             message, tool_calls, text = {}, [], ""
             nudged = False
             for attempt in range(3):
@@ -118,17 +140,19 @@ async def run(
                 message = response.get("message", {})
                 tool_calls = message.get("tool_calls") or []
                 text = message.get("content", "").strip()
-                if tool_calls or text:
+                usable = bool(tool_calls) or (bool(text) and not _looks_like_leaked_tool_call(text))
+                if usable:
                     if nudged:
                         messages.pop()  # drop the nudge — the real turn continues normally from here
                     break
                 if attempt < 2:
-                    yield ThinkingEvent(run_id=run_id, agent=agent.id, text="Got an empty response — asking again…")
+                    reason = "Got a garbled response — asking again…" if text else "Got an empty response — asking again…"
+                    yield ThinkingEvent(run_id=run_id, agent=agent.id, text=reason)
                     if not nudged:
                         messages.append({"role": "user", "content": "Please provide your answer now, in plain text."})
                         nudged = True
             else:
-                yield ErrorEvent(run_id=run_id, message="Model returned an empty answer after 3 attempts.", fatal=True)
+                yield ErrorEvent(run_id=run_id, message="Model returned an unusable answer after 3 attempts.", fatal=True)
                 break
 
             if not tool_calls and text:
