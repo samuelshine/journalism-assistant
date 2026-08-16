@@ -3,10 +3,13 @@ boilerplate via trafilatura). Used when a search tool surfaces a URL and the
 agent needs the actual article content, not just a snippet."""
 from __future__ import annotations
 
+from urllib.parse import urljoin
+
 import httpx
 import trafilatura
 
 from .base import Source, Tool, ToolResult
+from .ssrf_guard import UnsafeURLError, assert_safe_url
 from .web_ua import GENERIC_UA
 
 SCHEMA = {
@@ -18,13 +21,29 @@ SCHEMA = {
 }
 
 MAX_CHARS = 4000
+MAX_REDIRECTS = 5
 
 
 async def run(url: str) -> ToolResult:
+    # follow_redirects handles this automatically, but that would only check
+    # the URL the model gave us — a URL that itself resolves safely can still
+    # 302 to an internal address. Follow redirects manually so every hop gets
+    # re-checked, not just the first one.
     try:
-        async with httpx.AsyncClient(timeout=15, headers={"User-Agent": GENERIC_UA}, follow_redirects=True) as client:
-            r = await client.get(url)
+        async with httpx.AsyncClient(timeout=15, headers={"User-Agent": GENERIC_UA}, follow_redirects=False) as client:
+            current = url
+            for _ in range(MAX_REDIRECTS + 1):
+                assert_safe_url(current)
+                r = await client.get(current)
+                if r.is_redirect and "location" in r.headers:
+                    current = urljoin(current, r.headers["location"])
+                    continue
+                break
+            else:
+                return ToolResult(ok=False, summary=f"Too many redirects fetching {url}", error="redirect_loop")
         r.raise_for_status()
+    except UnsafeURLError as e:
+        return ToolResult(ok=False, summary=f"Refusing to fetch {url}", error=str(e))
     except Exception as e:  # noqa: BLE001
         return ToolResult(ok=False, summary=f"Could not fetch {url}", error=str(e))
 
