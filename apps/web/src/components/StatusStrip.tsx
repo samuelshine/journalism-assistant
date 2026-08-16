@@ -32,20 +32,20 @@ export default function StatusStrip() {
     <div className="flex items-center gap-3">
       {health?.demo_mode && (
         <span
-          title="Demo Mode — network-dependent tools serve pre-recorded fixtures for the rehearsed demo prompts"
-          className="rounded-full border border-(--color-amber) px-2 py-0.5 font-(family-name:--font-mono) text-[10px] font-medium text-(--color-amber)"
+          title="Demo Mode — the desk works from saved research so the class doesn't depend on the wifi"
+          className="rounded-sm border border-(--color-masthead) px-2 py-0.5 font-(family-name:--font-serif) text-[11px] font-medium text-(--color-masthead) italic"
         >
-          🎬 DEMO
+          Demo Mode
         </span>
       )}
       <div
-        title={ok ? 'All systems ready' : 'Some systems not ready — see console/api/health'}
-        className="flex items-center gap-1.5 font-(family-name:--font-mono) text-[11px] text-(--color-muted)"
+        title={ok ? 'Everything is ready' : 'Something needs attention — check the console'}
+        className="flex items-center gap-1.5 font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)"
       >
         <span
-          className={`h-1.5 w-1.5 rounded-full ${ok ? 'bg-(--color-ok)' : ok === false ? 'bg-(--color-error)' : 'bg-(--color-muted)'}`}
+          className={`h-1.5 w-1.5 rounded-full ${ok ? 'bg-(--color-verified)' : ok === false ? 'bg-(--color-error)' : 'bg-(--color-ink-faint)'}`}
         />
-        {ok === undefined ? 'checking' : ok ? 'ready' : 'degraded'}
+        {ok === undefined ? 'checking' : ok ? 'the desk is ready' : 'needs attention'}
       </div>
     </div>
   )

@@ -1,18 +1,18 @@
+import { modelNickname } from '../lib/narrate'
+
 interface Props {
   model: string
   rationale: string
 }
 
-// The point of this badge: model choice is a visible engineering decision,
-// not a black box. Hover to see why this specific model was picked.
+// Which model is reasoning is a real, deliberate choice this desk makes —
+// worth keeping visible — but it's not the headline. A quiet byline-style
+// credit, not a technical badge; hover (or the model's real name) is there
+// for anyone curious enough to look closer.
 export default function ModelBadge({ model, rationale }: Props) {
   return (
-    <span
-      title={rationale}
-      className="inline-flex items-center gap-1.5 rounded-full border border-(--color-border) bg-(--color-surface-raised) px-2.5 py-0.5 font-(family-name:--font-mono) text-[11px] text-(--color-muted)"
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-(--color-amber)" />
-      {model}
+    <span title={`${model} — ${rationale}`} className="font-(family-name:--font-serif) text-[13px] italic text-(--color-ink-faint)">
+      reasoning by {modelNickname(model)}
     </span>
   )
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
-import type { AgentEvent, AgentInfo } from '../types/events'
 import AnswerView from '../components/AnswerView'
-import TraceStep from '../components/TraceStep'
+import NotebookEntry from '../components/NotebookEntry'
+import { buildNotebook } from '../lib/notebook'
+import type { AgentEvent, AgentInfo } from '../types/events'
 
 interface Props {
   events: AgentEvent[]
@@ -19,29 +20,34 @@ export default function TracePane({ events, running, knownIndices, onCiteClick, 
   }, [events.length])
 
   // A crew run produces one answer per stage (Researcher, then Editor, then
-  // Ethicist, …) — each renders as its own card, in order, so the reader
-  // can see the pipeline's work build up rather than only the final output.
+  // Ethicist, …) — each renders as its own typeset piece, in order, so the
+  // reader can see the story build up rather than only the final output.
   const answerEvents = events.filter((e) => e.type === 'answer_done')
-  const traceEvents = events.filter((e) => e.type !== 'answer_done')
+  const notebook = buildNotebook(events)
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-4 md:px-10">
-      {traceEvents.length === 0 && !running && (
-        <div className="flex flex-1 items-center justify-center font-(family-name:--font-mono) text-sm text-(--color-muted)">
-          Trace will appear here — every plan, tool call, and result, live.
+    <div className="flex h-full flex-col overflow-y-auto px-6 py-5 md:px-10">
+      {notebook.length === 0 && !running && (
+        <div className="flex flex-1 items-center justify-center text-center font-(family-name:--font-serif) text-[15px] text-(--color-ink-faint) italic">
+          Ask the desk something above, and watch the reporting happen here — step by step, nothing hidden.
         </div>
       )}
 
-      <div className="space-y-0.5">
-        {traceEvents.map((e, i) => (
-          <TraceStep key={i} event={e} agentsById={agentsById} />
+      {notebook.length > 0 && (
+        <div className="mb-1 font-(family-name:--font-sans) text-[11px] font-semibold tracking-[0.08em] text-(--color-ink-faint) uppercase">
+          Reporting notes
+        </div>
+      )}
+      <div className="divide-y divide-(--color-rule)/60">
+        {notebook.map((entry) => (
+          <NotebookEntry key={entry.key} entry={entry} agentsById={agentsById} />
         ))}
       </div>
 
       {running && (
-        <div className="flex items-center gap-2 py-2 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-amber)" />
-          working…
+        <div className="flex items-center gap-2 py-3 font-(family-name:--font-serif) text-[13px] text-(--color-ink-faint) italic">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-masthead)" />
+          still working…
         </div>
       )}
 
@@ -49,16 +55,13 @@ export default function TracePane({ events, running, knownIndices, onCiteClick, 
         if (answerEvent.type !== 'answer_done') return null
         const info = agentsById[answerEvent.agent]
         return (
-          <div key={i} className="mt-4 overflow-hidden rounded border border-(--color-border) bg-(--color-surface)">
-            <div
-              className="flex items-center gap-2 border-b border-(--color-border) px-5 py-2.5"
-              style={info ? { borderLeft: `3px solid var(--color-${info.color})` } : undefined}
-            >
-              <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
-                {info?.name ?? answerEvent.agent}
+          <div key={i} className="mt-5 overflow-hidden rounded-sm border border-(--color-rule) bg-(--color-paper-raised)">
+            <div className="border-b-2 border-(--color-masthead) px-6 py-2.5" style={info ? { borderLeftColor: `var(--color-${info.color})`, borderLeftWidth: 3 } : undefined}>
+              <span className="font-(family-name:--font-sans) text-[11px] font-semibold tracking-[0.1em] text-(--color-ink-faint) uppercase">
+                {info?.name ?? answerEvent.agent}'s copy
               </span>
             </div>
-            <div className="p-5">
+            <div className="px-6 py-5">
               <AnswerView text={answerEvent.text} knownIndices={knownIndices} onCiteClick={onCiteClick} />
             </div>
           </div>

@@ -14,10 +14,10 @@ import type { RunHistoryEntry } from './types/history'
 type Tab = 'desk' | 'studio' | 'lab' | 'beats'
 
 const TAB_LABEL: Record<Tab, string> = {
-  desk: 'desk',
-  studio: '🎙 studio',
-  lab: '🧪 lab',
-  beats: '📡 beats',
+  desk: 'The Desk',
+  studio: 'Studio',
+  lab: 'Compare',
+  beats: 'Beats',
 }
 
 export default function App() {
@@ -130,50 +130,55 @@ export default function App() {
   }
 
   const knownIndices = new Set(sources.keys())
+  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
-    <div data-presenter={presenter} className="flex h-screen flex-col bg-(--color-ink) text-(--color-paper)">
-      <header className="flex items-center justify-between border-b border-(--color-border) px-6 py-3 md:px-10">
-        <div className="flex items-baseline gap-4">
-          <div className="flex items-baseline gap-3">
-            <h1 className="font-(family-name:--font-serif) text-2xl italic tracking-tight">NEWSROOM</h1>
-            <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.2em] text-(--color-amber)">
-              agentic desk
-            </span>
+    <div data-presenter={presenter} className="flex h-screen flex-col bg-(--color-paper) text-(--color-ink)">
+      <header className="border-b-[3px] border-(--color-masthead) bg-(--color-paper-raised) px-6 pt-4 pb-0 md:px-10">
+        <div className="flex items-start justify-between pb-3">
+          <div>
+            <h1 className="font-(family-name:--font-display) text-[32px] leading-none font-semibold tracking-tight text-(--color-ink)">
+              NEWSROOM
+            </h1>
+            <p className="mt-1 font-(family-name:--font-serif) text-[12.5px] text-(--color-ink-faint) italic">
+              an AI newsroom desk, for reporters still learning the ropes · {today}
+            </p>
           </div>
-          <nav className="flex gap-1">
-            {(Object.keys(TAB_LABEL) as Tab[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTab(t)}
-                className={`rounded px-2.5 py-1 font-(family-name:--font-mono) text-xs transition-colors ${
-                  tab === t ? 'bg-(--color-surface-raised) text-(--color-paper)' : 'text-(--color-muted) hover:text-(--color-paper)'
-                }`}
-              >
-                {TAB_LABEL[t]}
-              </button>
-            ))}
-          </nav>
+          <div className="flex items-center gap-4 pt-1.5">
+            <button
+              type="button"
+              onClick={() => setPresenter((v) => !v)}
+              title="Bigger type, for projecting to a classroom"
+              className={`font-(family-name:--font-sans) text-[11px] ${presenter ? 'text-(--color-masthead)' : 'text-(--color-ink-faint) hover:text-(--color-ink)'}`}
+            >
+              {presenter ? '↙ smaller' : '↗ bigger type'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeskOpen(true)}
+              className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint) hover:text-(--color-ink)"
+            >
+              Story Desk{history.length > 0 ? ` (${history.length})` : ''}
+            </button>
+            <StatusStrip />
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => setPresenter((v) => !v)}
-            title="Presenter mode — larger type for projecting"
-            className={`font-(family-name:--font-mono) text-[11px] ${presenter ? 'text-(--color-amber)' : 'text-(--color-muted) hover:text-(--color-paper)'}`}
-          >
-            🔍 presenter
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeskOpen(true)}
-            className="font-(family-name:--font-mono) text-[11px] text-(--color-muted) hover:text-(--color-paper)"
-          >
-            Story Desk{history.length > 0 ? ` (${history.length})` : ''}
-          </button>
-          <StatusStrip />
-        </div>
+        <nav className="flex gap-5">
+          {(Object.keys(TAB_LABEL) as Tab[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={`border-b-2 pb-2.5 font-(family-name:--font-sans) text-[13px] font-medium transition-colors ${
+                tab === t
+                  ? 'border-(--color-masthead) text-(--color-ink)'
+                  : 'border-transparent text-(--color-ink-faint) hover:text-(--color-ink)'
+              }`}
+            >
+              {TAB_LABEL[t]}
+            </button>
+          ))}
+        </nav>
       </header>
 
       {tab === 'desk' && (

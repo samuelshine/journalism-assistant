@@ -32,23 +32,24 @@ export default function StoryDesk({ open, onClose, history, agentsById, onSelect
     <div className="fixed inset-0 z-20 flex justify-end">
       <button
         type="button"
-        aria-label="Close Story Desk"
+        aria-label="Close the Story Desk"
         onClick={onClose}
-        className="flex-1 bg-black/40 backdrop-blur-[1px]"
+        className="flex-1 bg-(--color-ink)/30 backdrop-blur-[1px]"
       />
-      <div className="flex h-full w-80 flex-col border-l border-(--color-border) bg-(--color-surface)">
-        <div className="flex items-center justify-between border-b border-(--color-border) px-4 py-3">
-          <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
-            Story Desk — this session
-          </span>
-          <button type="button" onClick={onClose} className="text-(--color-muted) hover:text-(--color-paper)">
+      <div className="flex h-full w-96 flex-col border-l border-(--color-rule) bg-(--color-paper)">
+        <div className="flex items-center justify-between border-b border-(--color-rule) px-5 py-4">
+          <div>
+            <div className="font-(family-name:--font-display) text-lg text-(--color-ink)">Story Desk</div>
+            <div className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">everything asked this session</div>
+          </div>
+          <button type="button" onClick={onClose} className="text-(--color-ink-faint) hover:text-(--color-ink)">
             ✕
           </button>
         </div>
-        <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
+        <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
           {history.length === 0 ? (
-            <p className="px-1 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-              Runs land here as you go — click one later to bring its trace and sources back up.
+            <p className="px-1 font-(family-name:--font-serif) text-[13px] text-(--color-ink-faint) italic">
+              Every question asked lands here — click one later to bring the notes and article back up.
             </p>
           ) : (
             [...history].reverse().map((entry) => {
@@ -56,10 +57,10 @@ export default function StoryDesk({ open, onClose, history, agentsById, onSelect
               return (
                 <div
                   key={entry.id}
-                  className={`rounded border px-3 py-2 transition-colors ${
+                  className={`rounded-sm border px-3.5 py-3 transition-colors ${
                     entry.id === activeId
-                      ? 'border-(--color-amber) bg-(--color-surface-raised)'
-                      : 'border-(--color-border) hover:border-(--color-muted)'
+                      ? 'border-(--color-masthead) bg-(--color-highlight)/30'
+                      : 'border-(--color-rule) bg-(--color-paper-raised) hover:border-(--color-ink-faint)'
                   }`}
                 >
                   <button type="button" onClick={() => onSelect(entry)} className="block w-full text-left">
@@ -67,18 +68,18 @@ export default function StoryDesk({ open, onClose, history, agentsById, onSelect
                       {info && (
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `var(--color-${info.color})` }} />
                       )}
-                      <span className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
+                      <span className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">
                         {info?.name ?? entry.agentId} · {timeAgo(entry.startedAt)}
                       </span>
                     </div>
-                    <div className="line-clamp-2 text-sm text-(--color-paper)">{entry.prompt}</div>
+                    <div className="line-clamp-2 font-(family-name:--font-serif) text-[14.5px] text-(--color-ink)">{entry.prompt}</div>
                   </button>
                   <button
                     type="button"
                     onClick={() => downloadMarkdown(`newsroom-${entry.id}`, buildMarkdown(entry.prompt, entry.events, agentsById))}
-                    className="mt-1.5 font-(family-name:--font-mono) text-[10px] text-(--color-muted) hover:text-(--color-amber)"
+                    className="mt-1.5 font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint) hover:text-(--color-masthead)"
                   >
-                    ⬇ export .md
+                    ⬇ save as a file
                   </button>
                 </div>
               )

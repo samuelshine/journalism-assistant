@@ -1,43 +1,61 @@
 @import "tailwindcss";
 
 /*
-  NEWSROOM design tokens.
-  Direction: a wire-service desk at night — ink-dark surfaces, a working
-  amber accent (the "on air" / "filing" colour), monospace for anything
-  that is a trace or a timestamp, editorial serif for anything that is a
-  draft a reporter would actually publish. Agent identity colours are
-  used only as thin accents (dots, left-borders), never as backgrounds.
+  NEWSROOM design tokens — editorial revamp.
+
+  Direction: a real editorial desk, not a dev console. Warm newsprint
+  paper, a deep masthead red (the colour of a newspaper nameplate, not a
+  generic "AI terracotta"), a display serif with real character for
+  headlines, and a reading serif for anything a student would actually
+  read start to finish. Monospace is demoted to an optional, de-emphasised
+  voice for the technical detail underneath a "Show details" toggle — it
+  is no longer the loudest thing on the page, because that was the whole
+  complaint: this read as a terminal, not a newsroom.
 */
 @theme {
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: 'Fraunces', 'Source Serif 4', Georgia, serif;
   --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --color-ink: #0b0c0e;
-  --color-surface: #15171b;
-  --color-surface-raised: #1c1f24;
-  --color-border: #2a2e35;
-  --color-paper: #e9e6dd;
-  --color-muted: #9498a0;
+  /* paper + ink */
+  --color-paper: #faf7f0;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunken: #f1ebdc;
+  --color-rule: #e0d7c3;
+  --color-rule-strong: #cabfa3;
+  --color-ink: #211d17;
+  --color-ink-soft: #5c5548;
+  --color-ink-faint: #8c8371;
 
-  --color-amber: #d98e3b;
-  --color-ok: #4c9a6a;
-  --color-warn: #d9a63e;
-  --color-error: #c4453d;
+  /* masthead accent — a real newspaper red, used the way a paper uses its
+     nameplate colour: sparingly, for identity and primary actions */
+  --color-masthead: #8a2318;
+  --color-masthead-soft: #b8492f;
+  --color-highlight: #f3e3b8;
 
-  --color-agent-chief: #5c7aea;
-  --color-agent-scout: #3fb8af;
-  --color-agent-researcher: #d98e3b;
-  --color-agent-factchecker: #c4453d;
-  --color-agent-interviewer: #8b6fd9;
-  --color-agent-editor: #4c9a6a;
-  --color-agent-ethicist: #e9e6dd;
+  /* editorial status colours — read as a copy-editor's marks, not a
+     dashboard's semaphore */
+  --color-verified: #3f6b3a;
+  --color-contested: #9c6b1f;
+  --color-unverified: #6b6459;
+  --color-error: #a33b2a;
+
+  /* agent identity — thin accents only (a byline dot, a left rule),
+     drawn from an editorial palette rather than saturated UI colours */
+  --color-agent-chief: #3a4a7a;
+  --color-agent-scout: #2f7d72;
+  --color-agent-researcher: #8a2318;
+  --color-agent-factchecker: #9c6b1f;
+  --color-agent-interviewer: #6b4a8a;
+  --color-agent-editor: #3f6b3a;
+  --color-agent-ethicist: #5c5548;
 }
 
 html,
 body {
-  background: var(--color-ink);
-  color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
 body {
@@ -45,7 +63,20 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-amber) 35%, transparent);
+  background: color-mix(in srgb, var(--color-highlight) 80%, transparent);
+}
+
+/* Drop cap — the article-typesetting signature. Applied via .drop-cap on
+   the first paragraph of a generated answer. */
+.drop-cap::first-letter {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.85;
+  float: left;
+  padding-right: 0.08em;
+  padding-top: 0.03em;
+  color: var(--color-masthead);
 }
 
 /* Presenter mode — scales the whole UI up for projecting on a classroom
@@ -53,7 +84,7 @@ body {
    the root font-size cascades through every pane without per-component
    overrides. */
 [data-presenter='true'] {
-  font-size: 130%;
+  font-size: 122%;
 }
 
 /* respect reduced motion throughout the app */

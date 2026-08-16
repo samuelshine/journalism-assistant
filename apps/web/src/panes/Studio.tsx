@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
-import TraceStep from '../components/TraceStep'
+import NotebookEntry from '../components/NotebookEntry'
 import TranscriptView from '../components/TranscriptView'
+import { buildNotebook } from '../lib/notebook'
 import { streamMediaUpload, streamMediaUrl } from '../lib/sse'
 import type { AgentEvent, TranscriptReadyEvent } from '../types/events'
 
@@ -83,8 +84,11 @@ export default function Studio({ onSendToAgent }: Props) {
     runPipeline('url', urlInput.trim())
   }
 
+  const notebook = buildNotebook(events)
+
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-4 md:px-10">
+    <div className="flex h-full flex-col overflow-y-auto px-6 py-5 md:px-10">
+      <div className="mb-4 font-(family-name:--font-display) text-lg text-(--color-ink)">Bring in an interview</div>
       {!transcript && (
         <div className="grid gap-3 sm:grid-cols-3">
           <div
@@ -95,12 +99,12 @@ export default function Studio({ onSendToAgent }: Props) {
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed px-4 py-6 text-center transition-colors ${
-              dragOver ? 'border-(--color-amber) bg-(--color-surface-raised)' : 'border-(--color-border) hover:border-(--color-muted)'
+            className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-sm border border-dashed px-4 py-7 text-center transition-colors ${
+              dragOver ? 'border-(--color-masthead) bg-(--color-highlight)/30' : 'border-(--color-rule-strong) bg-(--color-paper-raised) hover:border-(--color-ink-faint)'
             }`}
           >
-            <span className="font-(family-name:--font-mono) text-xs text-(--color-paper)">Drop an audio file</span>
-            <span className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">or click to browse</span>
+            <span className="font-(family-name:--font-serif) text-[15px] text-(--color-ink)">Drop an audio file</span>
+            <span className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">or click to browse</span>
             <input
               ref={fileInputRef}
               type="file"
@@ -117,76 +121,76 @@ export default function Studio({ onSendToAgent }: Props) {
             type="button"
             onClick={recording ? stopRecording : startRecording}
             disabled={running && !recording}
-            className={`flex flex-col items-center justify-center gap-1 rounded border px-4 py-6 text-center transition-colors disabled:opacity-50 ${
-              recording ? 'border-(--color-error) bg-(--color-error)/10' : 'border-(--color-border) hover:border-(--color-muted)'
+            className={`flex flex-col items-center justify-center gap-1 rounded-sm border px-4 py-7 text-center transition-colors disabled:opacity-50 ${
+              recording ? 'border-(--color-error) bg-(--color-error)/5' : 'border-(--color-rule-strong) bg-(--color-paper-raised) hover:border-(--color-ink-faint)'
             }`}
           >
-            <span className="font-(family-name:--font-mono) text-xs text-(--color-paper)">
-              {recording ? '⏺ Stop recording' : '🎙 Record from mic'}
+            <span className="font-(family-name:--font-serif) text-[15px] text-(--color-ink)">
+              {recording ? '⏺ Stop recording' : '🎙 Record an interview'}
             </span>
-            <span className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
-              {recording ? 'click when done' : 'interview live'}
+            <span className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">
+              {recording ? 'click when you\'re done' : 'right from your microphone'}
             </span>
           </button>
 
-          <div className="flex flex-col justify-center gap-2 rounded border border-(--color-border) px-4 py-6">
-            <span className="font-(family-name:--font-mono) text-xs text-(--color-paper)">Paste a URL</span>
+          <div className="flex flex-col justify-center gap-2 rounded-sm border border-(--color-rule-strong) bg-(--color-paper-raised) px-4 py-7">
+            <span className="font-(family-name:--font-serif) text-[15px] text-(--color-ink)">Paste a link</span>
             <input
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submitUrl()}
-              placeholder="youtube.com/watch?v=…"
+              placeholder="a YouTube or podcast link…"
               disabled={running}
-              className="rounded border border-(--color-border) bg-(--color-ink) px-2 py-1 font-(family-name:--font-mono) text-[11px] text-(--color-paper) placeholder:text-(--color-muted) focus:border-(--color-amber) focus:outline-none"
+              className="rounded-sm border border-(--color-rule) bg-(--color-paper) px-2.5 py-1.5 font-(family-name:--font-sans) text-[12.5px] text-(--color-ink) placeholder:text-(--color-ink-faint) focus:border-(--color-masthead) focus:outline-none"
             />
             <button
               type="button"
               onClick={submitUrl}
               disabled={running || !urlInput.trim()}
-              className="rounded bg-(--color-amber) px-2 py-1 font-(family-name:--font-mono) text-[11px] font-medium text-(--color-ink) disabled:opacity-40"
+              className="rounded-sm bg-(--color-masthead) px-2.5 py-1.5 font-(family-name:--font-sans) text-[12.5px] font-medium text-(--color-paper-raised) disabled:opacity-40"
             >
-              Fetch &amp; transcribe
+              Bring it in
             </button>
           </div>
         </div>
       )}
 
       {events.length > 0 && (
-        <div className="mt-4 space-y-0.5 rounded border border-(--color-border) bg-(--color-surface) p-3">
-          {events.map((e, i) => (
-            <TraceStep key={i} event={e} agentsById={{}} />
+        <div className="mt-5 divide-y divide-(--color-rule)/60 rounded-sm border border-(--color-rule) bg-(--color-paper-raised) px-3.5 py-2">
+          {notebook.map((entry) => (
+            <NotebookEntry key={entry.key} entry={entry} agentsById={{}} />
           ))}
           {running && (
-            <div className="flex items-center gap-2 py-1 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-amber)" />
-              processing…
+            <div className="flex items-center gap-2 py-2 font-(family-name:--font-serif) text-[13px] text-(--color-ink-faint) italic">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-masthead)" />
+              listening it through…
             </div>
           )}
         </div>
       )}
 
       {transcript && (
-        <div className="mt-4 rounded border border-(--color-border) bg-(--color-surface) p-5">
+        <div className="mt-5 rounded-sm border border-(--color-rule) bg-(--color-paper-raised) p-5">
           <TranscriptView transcript={transcript} />
-          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-(--color-border) pt-4">
-            <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
-              Send to
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-(--color-rule) pt-4">
+            <span className="font-(family-name:--font-sans) text-[11px] tracking-wide text-(--color-ink-faint) uppercase">
+              Send this to
             </span>
             <button
               type="button"
               onClick={() => onSendToAgent('factchecker', `Fact-check this transcript:\n\n${transcriptAsPlainText(transcript)}`)}
-              className="rounded-full border border-(--color-border) px-3 py-1 font-(family-name:--font-mono) text-xs text-(--color-muted) hover:border-(--color-muted) hover:text-(--color-paper)"
+              className="rounded-full border border-(--color-rule) px-3 py-1 font-(family-name:--font-sans) text-[12.5px] text-(--color-ink-soft) hover:border-(--color-ink-faint) hover:text-(--color-ink)"
             >
-              Fact-Checker
+              the Fact-Checker
             </button>
             <button
               type="button"
               onClick={() =>
                 onSendToAgent('interviewer', `Suggest follow-up questions based on this transcript:\n\n${transcriptAsPlainText(transcript)}`)
               }
-              className="rounded-full border border-(--color-border) px-3 py-1 font-(family-name:--font-mono) text-xs text-(--color-muted) hover:border-(--color-muted) hover:text-(--color-paper)"
+              className="rounded-full border border-(--color-rule) px-3 py-1 font-(family-name:--font-sans) text-[12.5px] text-(--color-ink-soft) hover:border-(--color-ink-faint) hover:text-(--color-ink)"
             >
-              Interviewer
+              the Interviewer
             </button>
             <button
               type="button"
@@ -194,9 +198,9 @@ export default function Studio({ onSendToAgent }: Props) {
                 setTranscript(null)
                 setEvents([])
               }}
-              className="ml-auto rounded-full border border-(--color-border) px-3 py-1 font-(family-name:--font-mono) text-xs text-(--color-muted) hover:border-(--color-muted) hover:text-(--color-paper)"
+              className="ml-auto rounded-full border border-(--color-rule) px-3 py-1 font-(family-name:--font-sans) text-[12.5px] text-(--color-ink-soft) hover:border-(--color-ink-faint) hover:text-(--color-ink)"
             >
-              New clip
+              bring in another clip
             </button>
           </div>
         </div>

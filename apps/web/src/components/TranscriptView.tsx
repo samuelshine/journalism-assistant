@@ -1,12 +1,12 @@
 import type { PullQuote, TranscriptReadyEvent, TranscriptSegment } from '../types/events'
 
 const SPEAKER_COLOR: Record<string, string> = {
-  'Speaker A': 'var(--color-amber)',
+  'Speaker A': 'var(--color-masthead)',
   'Speaker B': 'var(--color-agent-interviewer)',
 }
 
 function speakerColor(speaker: string): string {
-  return SPEAKER_COLOR[speaker] ?? 'var(--color-muted)'
+  return SPEAKER_COLOR[speaker] ?? 'var(--color-ink-faint)'
 }
 
 function formatTimestamp(seconds: number): string {
@@ -24,10 +24,10 @@ function PullQuoteCard({ quote, onClick }: { quote: PullQuote; onClick: () => vo
     <button
       type="button"
       onClick={onClick}
-      className="block w-full rounded border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-left transition-colors hover:border-(--color-muted)"
+      className="block w-full rounded-sm border border-(--color-rule) bg-(--color-paper-sunken) px-4 py-3 text-left transition-colors hover:border-(--color-ink-faint)"
     >
-      <p className="font-(family-name:--font-serif) text-[15px] italic leading-snug text-(--color-paper)">“{quote.text}”</p>
-      <div className="mt-2 flex items-center gap-2 font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
+      <p className="font-(family-name:--font-display) text-[16px] leading-snug text-(--color-ink) italic">“{quote.text}”</p>
+      <div className="mt-2 flex items-center gap-2 font-(family-name:--font-sans) text-[10.5px] text-(--color-ink-faint)">
         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: speakerColor(quote.speaker) }} />
         {quote.speaker} · {formatTimestamp(quote.start)}
       </div>
@@ -37,17 +37,17 @@ function PullQuoteCard({ quote, onClick }: { quote: PullQuote; onClick: () => vo
 
 function SegmentRow({ segment }: { segment: TranscriptSegment }) {
   return (
-    <div id={segmentId(segment.start)} className="flex gap-3 rounded px-2 py-1.5 target:bg-(--color-surface-raised)">
-      <span className="w-12 shrink-0 pt-0.5 font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
+    <div id={segmentId(segment.start)} className="flex gap-3 rounded-sm px-2 py-1.5 target:bg-(--color-highlight)/40">
+      <span className="w-10 shrink-0 pt-0.5 font-(family-name:--font-sans) text-[10.5px] text-(--color-ink-faint)">
         {formatTimestamp(segment.start)}
       </span>
       <span
-        className="w-20 shrink-0 pt-0.5 font-(family-name:--font-mono) text-[10px] font-medium"
+        className="w-[74px] shrink-0 pt-0.5 font-(family-name:--font-sans) text-[10.5px] font-semibold"
         style={{ color: speakerColor(segment.speaker) }}
       >
         {segment.speaker}
       </span>
-      <p className="flex-1 font-(family-name:--font-serif) text-sm leading-relaxed text-(--color-paper)">{segment.text}</p>
+      <p className="flex-1 font-(family-name:--font-serif) text-[14.5px] leading-relaxed text-(--color-ink)">{segment.text}</p>
     </div>
   )
 }
@@ -59,23 +59,21 @@ export default function TranscriptView({ transcript }: { transcript: TranscriptR
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <div className="font-(family-name:--font-sans) text-sm font-medium text-(--color-paper)">{transcript.title}</div>
-          <div className="font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
-            {transcript.language} · {formatTimestamp(transcript.duration)} · {transcript.segments.length} segments
-          </div>
+      <div className="mb-4">
+        <div className="font-(family-name:--font-display) text-[17px] text-(--color-ink)">{transcript.title}</div>
+        <div className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">
+          {transcript.language} · {formatTimestamp(transcript.duration)} long · {transcript.segments.length} moments
         </div>
       </div>
 
-      <div className="mb-2 rounded border border-dashed border-(--color-border) px-3 py-2 font-(family-name:--font-mono) text-[11px] text-(--color-muted)">
+      <div className="mb-4 rounded-sm border border-dashed border-(--color-rule-strong) px-3.5 py-2.5 font-(family-name:--font-serif) text-[12.5px] text-(--color-ink-soft) italic">
         ⓘ {transcript.speaker_note}
       </div>
 
       {transcript.pull_quotes.length > 0 && (
-        <div className="mb-5">
-          <div className="mb-2 font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
-            Pull quotes
+        <div className="mb-6">
+          <div className="mb-2 font-(family-name:--font-sans) text-[11px] font-semibold tracking-wide text-(--color-masthead) uppercase">
+            Worth quoting
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {transcript.pull_quotes.map((q, i) => (
@@ -86,7 +84,7 @@ export default function TranscriptView({ transcript }: { transcript: TranscriptR
       )}
 
       <div>
-        <div className="mb-2 font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
+        <div className="mb-2 font-(family-name:--font-sans) text-[11px] font-semibold tracking-wide text-(--color-masthead) uppercase">
           Full transcript
         </div>
         <div className="space-y-0.5">

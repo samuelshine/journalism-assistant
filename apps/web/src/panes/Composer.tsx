@@ -32,42 +32,8 @@ export default function Composer({ agentsList, selectedAgentId, onSelectAgent, r
   }
 
   return (
-    <div className="border-b border-(--color-border) bg-(--color-surface) px-6 py-4 md:px-10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        {deskChief && (
-          <button
-            type="button"
-            onClick={() => onSelectAgent(deskChief.id)}
-            disabled={running}
-            title={deskChief.description}
-            className={`rounded-full border px-3 py-1 font-(family-name:--font-mono) text-xs font-medium transition-colors disabled:opacity-50 ${
-              deskChief.id === selectedAgentId
-                ? 'border-(--color-amber) bg-(--color-amber) text-(--color-ink)'
-                : 'border-(--color-amber) text-(--color-amber) hover:bg-(--color-amber)/10'
-            }`}
-          >
-            🧭 {deskChief.name} · auto
-          </button>
-        )}
-        <span className="text-(--color-border)">|</span>
-        {specialists.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => onSelectAgent(a.id)}
-            disabled={running}
-            title={a.description}
-            className={`rounded-full border px-3 py-1 font-(family-name:--font-mono) text-xs transition-colors disabled:opacity-50 ${
-              a.id === selectedAgentId
-                ? 'border-(--color-paper) text-(--color-paper)'
-                : 'border-(--color-border) text-(--color-muted) hover:border-(--color-muted)'
-            }`}
-          >
-            {a.name}
-          </button>
-        ))}
-      </div>
-      {selected && <div className="mb-3 -mt-1 font-(family-name:--font-mono) text-xs text-(--color-muted)">{selected.description}</div>}
+    <div className="border-b border-(--color-rule) bg-(--color-paper-raised) px-6 py-5 md:px-10">
+      <label className="mb-2 block font-(family-name:--font-display) text-lg text-(--color-ink)">Ask the desk</label>
 
       <div className="flex items-end gap-3">
         <textarea
@@ -79,16 +45,16 @@ export default function Composer({ agentsList, selectedAgentId, onSelectAgent, r
               submit()
             }
           }}
-          placeholder={PLACEHOLDER_BY_AGENT[selectedAgentId] ?? 'Ask the desk…'}
+          placeholder={PLACEHOLDER_BY_AGENT[selectedAgentId] ?? 'What do you need help with today?'}
           rows={2}
           disabled={running}
-          className="flex-1 resize-none rounded border border-(--color-border) bg-(--color-ink) px-3 py-2 font-(family-name:--font-sans) text-sm text-(--color-paper) placeholder:text-(--color-muted) focus:border-(--color-amber) focus:outline-none disabled:opacity-60"
+          className="flex-1 resize-none rounded-sm border border-(--color-rule) bg-(--color-paper) px-3.5 py-2.5 font-(family-name:--font-serif) text-[15px] text-(--color-ink) placeholder:text-(--color-ink-faint) placeholder:italic focus:border-(--color-masthead) focus:outline-none disabled:opacity-60"
         />
         {running ? (
           <button
             type="button"
             onClick={onStop}
-            className="shrink-0 rounded border border-(--color-error) px-4 py-2 font-(family-name:--font-mono) text-xs text-(--color-error) hover:bg-(--color-error)/10"
+            className="shrink-0 rounded-sm border border-(--color-error) px-5 py-2.5 font-(family-name:--font-sans) text-sm font-medium text-(--color-error) hover:bg-(--color-error)/5"
           >
             Stop
           </button>
@@ -97,12 +63,52 @@ export default function Composer({ agentsList, selectedAgentId, onSelectAgent, r
             type="button"
             onClick={submit}
             disabled={!prompt.trim()}
-            className="shrink-0 rounded bg-(--color-amber) px-4 py-2 font-(family-name:--font-mono) text-xs font-medium text-(--color-ink) disabled:opacity-40"
+            className="shrink-0 rounded-sm bg-(--color-masthead) px-5 py-2.5 font-(family-name:--font-sans) text-sm font-medium text-(--color-paper-raised) transition-opacity hover:opacity-90 disabled:opacity-40"
           >
-            Run
+            Ask →
           </button>
         )}
       </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <span className="mr-1 font-(family-name:--font-sans) text-[11px] tracking-wide text-(--color-ink-faint) uppercase">
+          Who's on this:
+        </span>
+        {deskChief && (
+          <button
+            type="button"
+            onClick={() => onSelectAgent(deskChief.id)}
+            disabled={running}
+            title={deskChief.description}
+            className={`rounded-full border px-3 py-1 font-(family-name:--font-sans) text-[12.5px] font-medium transition-colors disabled:opacity-50 ${
+              deskChief.id === selectedAgentId
+                ? 'border-(--color-masthead) bg-(--color-masthead) text-(--color-paper-raised)'
+                : 'border-(--color-masthead) text-(--color-masthead) hover:bg-(--color-masthead)/5'
+            }`}
+          >
+            Whoever fits best
+          </button>
+        )}
+        {specialists.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            onClick={() => onSelectAgent(a.id)}
+            disabled={running}
+            title={a.description}
+            className={`rounded-full border px-3 py-1 font-(family-name:--font-sans) text-[12.5px] transition-colors disabled:opacity-50 ${
+              a.id === selectedAgentId
+                ? 'border-(--color-ink) text-(--color-ink)'
+                : 'border-(--color-rule) text-(--color-ink-soft) hover:border-(--color-ink-faint)'
+            }`}
+          >
+            {a.name}
+          </button>
+        ))}
+      </div>
+      {selected && (
+        <div className="mt-1.5 font-(family-name:--font-serif) text-[13px] text-(--color-ink-faint) italic">{selected.description}</div>
+      )}
     </div>
   )
 }

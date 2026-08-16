@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import AnswerView from '../components/AnswerView'
-import TraceStep from '../components/TraceStep'
+import NotebookEntry from '../components/NotebookEntry'
+import { buildNotebook } from '../lib/notebook'
 import { streamBeatRunNow } from '../lib/sse'
 import type { Beat, Brief } from '../types/beats'
 import type { AgentEvent } from '../types/events'
 
 function timeAgo(ts: number | null): string {
-  if (ts === null) return 'never run'
+  if (ts === null) return 'never checked yet'
   const seconds = Math.round((Date.now() / 1000 - ts))
   if (seconds < 60) return 'just now'
   const minutes = Math.round(seconds / 60)
@@ -20,22 +21,22 @@ function NewBeatForm({ onCreate }: { onCreate: (topic: string, interval: number)
   const [topic, setTopic] = useState('')
   const [interval, setInterval] = useState(30)
   return (
-    <div className="mb-4 flex items-center gap-2 rounded border border-(--color-border) bg-(--color-surface) p-3">
+    <div className="mb-5 flex items-center gap-2 rounded-sm border border-(--color-rule) bg-(--color-paper-raised) p-3.5">
       <input
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
-        placeholder="Beat topic, e.g. Tamil Nadu water policy"
-        className="flex-1 rounded border border-(--color-border) bg-(--color-ink) px-2 py-1.5 font-(family-name:--font-sans) text-sm text-(--color-paper) placeholder:text-(--color-muted) focus:border-(--color-amber) focus:outline-none"
+        placeholder="A topic to keep an eye on, e.g. Tamil Nadu water policy"
+        className="flex-1 rounded-sm border border-(--color-rule) bg-(--color-paper) px-2.5 py-1.5 font-(family-name:--font-serif) text-[14px] text-(--color-ink) placeholder:text-(--color-ink-faint) placeholder:italic focus:border-(--color-masthead) focus:outline-none"
       />
       <select
         value={interval}
         onChange={(e) => setInterval(Number(e.target.value))}
-        className="rounded border border-(--color-border) bg-(--color-ink) px-2 py-1.5 font-(family-name:--font-mono) text-xs text-(--color-paper)"
+        className="rounded-sm border border-(--color-rule) bg-(--color-paper) px-2 py-1.5 font-(family-name:--font-sans) text-[12.5px] text-(--color-ink)"
       >
-        <option value={5}>every 5 min</option>
-        <option value={30}>every 30 min</option>
-        <option value={60}>every hour</option>
-        <option value={360}>every 6 hours</option>
+        <option value={5}>check every 5 min</option>
+        <option value={30}>check every 30 min</option>
+        <option value={60}>check every hour</option>
+        <option value={360}>check every 6 hours</option>
       </select>
       <button
         type="button"
@@ -45,9 +46,9 @@ function NewBeatForm({ onCreate }: { onCreate: (topic: string, interval: number)
           setTopic('')
         }}
         disabled={!topic.trim()}
-        className="rounded bg-(--color-amber) px-3 py-1.5 font-(family-name:--font-mono) text-xs font-medium text-(--color-ink) disabled:opacity-40"
+        className="rounded-sm bg-(--color-masthead) px-3.5 py-1.5 font-(family-name:--font-sans) text-[12.5px] font-medium text-(--color-paper-raised) disabled:opacity-40"
       >
-        Add beat
+        Add to the beat sheet
       </button>
     </div>
   )
@@ -91,39 +92,39 @@ function BeatCard({ beat, onDeleted, onRefresh }: { beat: Beat; onDeleted: () =>
   }
 
   const answerEvent = liveEvents.find((e) => e.type === 'answer_done')
-  const traceEvents = liveEvents.filter((e) => e.type !== 'answer_done')
+  const notebook = buildNotebook(liveEvents)
 
   return (
-    <div className="mb-2 rounded border border-(--color-border) bg-(--color-surface)">
-      <div className="flex items-center gap-3 px-4 py-3">
+    <div className="mb-2.5 rounded-sm border border-(--color-rule) bg-(--color-paper-raised)">
+      <div className="flex items-center gap-3 px-4 py-3.5">
         <button type="button" onClick={() => setExpanded((v) => !v)} className="flex-1 text-left">
-          <div className="font-(family-name:--font-sans) text-sm font-medium text-(--color-paper)">{beat.topic}</div>
-          <div className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
-            every {beat.interval_minutes}min · {timeAgo(beat.last_run_at)} · {beat.brief_count} brief{beat.brief_count === 1 ? '' : 's'}
+          <div className="font-(family-name:--font-serif) text-[15px] text-(--color-ink)">{beat.topic}</div>
+          <div className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">
+            checked every {beat.interval_minutes}min · {timeAgo(beat.last_run_at)} · {beat.brief_count} note{beat.brief_count === 1 ? '' : 's'} so far
           </div>
         </button>
         <button
           type="button"
           onClick={runNow}
           disabled={running}
-          className="rounded-full border border-(--color-border) px-3 py-1 font-(family-name:--font-mono) text-[11px] text-(--color-muted) hover:border-(--color-muted) disabled:opacity-50"
+          className="rounded-full border border-(--color-rule) px-3 py-1 font-(family-name:--font-sans) text-[11.5px] text-(--color-ink-soft) hover:border-(--color-ink-faint) disabled:opacity-50"
         >
-          {running ? 'running…' : 'Run now'}
+          {running ? 'checking…' : 'Check now'}
         </button>
-        <button type="button" onClick={del} className="text-(--color-muted) hover:text-(--color-error)">
+        <button type="button" onClick={del} className="text-(--color-ink-faint) hover:text-(--color-error)">
           ✕
         </button>
       </div>
 
       {expanded && (
-        <div className="border-t border-(--color-border) px-4 py-3">
+        <div className="border-t border-(--color-rule) px-4 py-3.5">
           {liveEvents.length > 0 && (
-            <div className="mb-3 space-y-0.5">
-              {traceEvents.map((e, i) => (
-                <TraceStep key={i} event={e} agentsById={{}} />
+            <div className="mb-3 divide-y divide-(--color-rule)/60">
+              {notebook.map((entry) => (
+                <NotebookEntry key={entry.key} entry={entry} agentsById={{}} />
               ))}
               {answerEvent && answerEvent.type === 'answer_done' && (
-                <div className="mt-2 rounded bg-(--color-surface-raised) p-3">
+                <div className="mt-2 rounded-sm bg-(--color-paper-sunken) p-3">
                   <AnswerView text={answerEvent.text} knownIndices={new Set(answerEvent.sources.map((s) => s.index))} onCiteClick={() => {}} />
                 </div>
               )}
@@ -131,14 +132,14 @@ function BeatCard({ beat, onDeleted, onRefresh }: { beat: Beat; onDeleted: () =>
           )}
 
           {briefs.length === 0 && !running ? (
-            <p className="font-(family-name:--font-mono) text-xs text-(--color-muted)">
-              No briefs yet — click "Run now" or wait for the next scheduled check.
+            <p className="font-(family-name:--font-serif) text-[13px] text-(--color-ink-faint) italic">
+              No notes yet — click "Check now," or wait for the next scheduled check.
             </p>
           ) : (
             <div className="space-y-2">
               {briefs.map((b) => (
-                <div key={b.id} className="rounded border border-(--color-border) p-3">
-                  <div className="mb-1 font-(family-name:--font-mono) text-[10px] text-(--color-muted)">{timeAgo(b.created_at)}</div>
+                <div key={b.id} className="rounded-sm border border-(--color-rule) p-3">
+                  <div className="mb-1 font-(family-name:--font-sans) text-[10.5px] text-(--color-ink-faint)">{timeAgo(b.created_at)}</div>
                   <AnswerView text={b.text} knownIndices={new Set(b.sources.map((s) => s.index))} onCiteClick={() => {}} />
                 </div>
               ))}
@@ -172,15 +173,15 @@ export default function BeatInbox() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-4 md:px-10">
-      <div className="mb-4 font-(family-name:--font-mono) text-xs text-(--color-muted)">
-        A beat is a standing topic the desk keeps an eye on — Scout checks it on its own schedule in the
-        background, and any brief it finds lands here. Click "Run now" to see it happen immediately instead of
-        waiting.
-      </div>
+    <div className="flex h-full flex-col overflow-y-auto px-6 py-5 md:px-10">
+      <div className="mb-2 font-(family-name:--font-display) text-lg text-(--color-ink)">The beat sheet</div>
+      <p className="mb-4 max-w-2xl font-(family-name:--font-serif) text-[14px] text-(--color-ink-soft)">
+        Add a topic here and the desk keeps an eye on it in the background, on its own schedule — the way a reporter
+        holds a beat. Whatever it finds shows up below. "Check now" runs it immediately, live, instead of waiting.
+      </p>
       <NewBeatForm onCreate={createBeat} />
       {beats.length === 0 ? (
-        <p className="font-(family-name:--font-mono) text-xs text-(--color-muted)">No beats yet — add one above.</p>
+        <p className="font-(family-name:--font-serif) text-[13.5px] text-(--color-ink-faint) italic">Nothing on the beat sheet yet — add a topic above.</p>
       ) : (
         beats.map((b) => <BeatCard key={b.id} beat={b} onDeleted={refresh} onRefresh={refresh} />)
       )}

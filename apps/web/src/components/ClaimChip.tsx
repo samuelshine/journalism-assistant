@@ -4,23 +4,21 @@ interface Props {
   onClick: (index: number) => void
 }
 
-// A citation marker in the model's answer. Resolved (green) means it points
-// at a real source card in the Evidence drawer; unresolved (red, shouldn't
-// normally happen given the orchestrator's numbering discipline) means the
-// model cited a number nothing backs — surfaced rather than hidden.
+// A footnote marker, styled the way a printed footnote number reads — not
+// a code badge. Resolved (masthead red, like real ink) points at a real
+// clipping in the Sources rail; unresolved (dull red) means the model
+// cited a number nothing backs — surfaced, not hidden.
 export default function ClaimChip({ index, resolved, onClick }: Props) {
   return (
     <button
       type="button"
       onClick={() => onClick(index)}
-      title={resolved ? `Jump to source ${index}` : `Model cited [${index}] but no source has that number`}
-      className={`mx-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded px-1 align-super font-(family-name:--font-mono) text-[10px] leading-none ${
-        resolved
-          ? 'bg-(--color-amber)/20 text-(--color-amber) hover:bg-(--color-amber)/30'
-          : 'bg-(--color-error)/20 text-(--color-error)'
+      title={resolved ? `Jump to source ${index}` : `This citation doesn't match a real source — worth double-checking`}
+      className={`align-super font-(family-name:--font-serif) text-[0.7em] font-semibold leading-none ${
+        resolved ? 'text-(--color-masthead) hover:underline' : 'text-(--color-error) hover:underline'
       }`}
     >
-      {index}
+      [{index}]
     </button>
   )
 }
