@@ -77,16 +77,34 @@ export default function AnswerView({ text, knownIndices, onCiteClick }: Props) {
             </ul>
           )
         }
-        if (lines.length === 1 && /^#{1,4}\s/.test(lines[0].trim())) {
-          const headerText = lines[0].replace(/^#{1,4}\s/, '')
-          return (
-            <h4
-              key={bi}
-              className="mt-5 mb-2 border-b border-(--color-rule) pb-1 font-(family-name:--font-sans) text-[11px] font-semibold tracking-[0.08em] text-(--color-masthead) uppercase first:mt-0"
-            >
-              {headerText}
-            </h4>
-          )
+        if (lines.length === 1) {
+          const headerMatch = lines[0].trim().match(/^#{1,4}\s+(.*)$/)
+          if (headerMatch) {
+            const rest = headerMatch[1]
+            const colonIdx = rest.indexOf(':')
+            // The model doesn't always put a header on its own line — "### Lead
+            // paragraph: the city faces..." shows up as often as a clean "###
+            // Timeline" line. Treat a short label-then-colon as an inline bold
+            // lead-in on a normal paragraph rather than leaving the literal
+            // "###" markers visible or promoting a whole sentence to a heading.
+            if (colonIdx > 0 && colonIdx < 40 && rest.length > colonIdx + 1) {
+              const label = rest.slice(0, colonIdx)
+              const body = rest.slice(colonIdx + 1).trim()
+              return (
+                <p key={bi} className="my-3 first:mt-0 last:mb-0">
+                  <strong>{label}:</strong> {renderInline(body, knownIndices, onCiteClick, `${bi}`)}
+                </p>
+              )
+            }
+            return (
+              <h4
+                key={bi}
+                className="mt-5 mb-2 border-b border-(--color-rule) pb-1 font-(family-name:--font-sans) text-[11px] font-semibold tracking-[0.08em] text-(--color-masthead) uppercase first:mt-0"
+              >
+                {rest}
+              </h4>
+            )
+          }
         }
         const isDropCap = !droppedCap && block.trim().length > 40
         if (isDropCap) droppedCap = true
