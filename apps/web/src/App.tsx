@@ -1,119 +1,107 @@
-import { useEffect, useState } from 'react'
-
-type CheckResult = Record<string, unknown> & { ok?: boolean }
-type Health = { ok: boolean; demo_mode: boolean; checks: Record<string, CheckResult> }
-
-const LABELS: Record<string, string> = {
-  ollama: 'Ollama — local model runtime',
-  sqlite_vec: 'SQLite + sqlite-vec — memory store',
-  external_api: 'Live source — Wikipedia probe',
-}
-
-function StatusDot({ ok }: { ok: boolean | undefined }) {
-  if (ok === undefined) {
-    return <span className="inline-block h-2.5 w-2.5 rounded-full bg-(--color-muted) animate-pulse" />
-  }
-  return (
-    <span
-      className={`inline-block h-2.5 w-2.5 rounded-full ${
-        ok ? 'bg-(--color-ok)' : 'bg-(--color-error)'
-      }`}
-      style={ok ? { boxShadow: '0 0 8px color-mix(in srgb, var(--color-ok) 70%, transparent)' } : undefined}
-    />
-  )
-}
-
-function detailLine(key: string, result: CheckResult): string {
-  if (key === 'ollama') {
-    if (!result.ok) return String(result.error ?? `missing: ${(result.missing as string[])?.join(', ')}`)
-    return `${(result.models_present as string[]).length} required models present`
-  }
-  if (key === 'sqlite_vec') {
-    return result.ok ? `v${result.version}` : String(result.error)
-  }
-  if (key === 'external_api') {
-    return result.ok ? `200 in ${result.latency_ms}ms` : String(result.error ?? `status ${result.status}`)
-  }
-  return JSON.stringify(result)
-}
+import { useCallback, useEffect, useRef, useState } from 'react'
+import StatusStrip from './components/StatusStrip'
+import { streamRun } from './lib/sse'
+import Composer from './panes/Composer'
+import EvidenceDrawer from './panes/EvidenceDrawer'
+import TracePane from './panes/TracePane'
+import type { AgentEvent, AgentInfo, SourceRef } from './types/events'
 
 export default function App() {
-  const [health, setHealth] = useState<Health | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [checkedAt, setCheckedAt] = useState<string>('')
-
-  async function runCheck() {
-    try {
-      const res = await fetch('/api/health')
-      const data = (await res.json()) as Health
-      setHealth(data)
-      setError(null)
-    } catch (e) {
-      setError('Cannot reach API — is apps/api running on :8000?')
-    }
-    setCheckedAt(new Date().toLocaleTimeString())
-  }
+  const [agentsList, setAgentsList] = useState<AgentInfo[]>([])
+  const [selectedAgentId, setSelectedAgentId] = useState('researcher')
+  const [events, setEvents] = useState<AgentEvent[]>([])
+  const [sources, setSources] = useState<Map<number, SourceRef>>(new Map())
+  const [running, setRunning] = useState(false)
+  const [highlighted, setHighlighted] = useState<number | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    runCheck()
-    const id = setInterval(runCheck, 8000)
-    return () => clearInterval(id)
+    fetch('/api/agents')
+      .then((r) => r.json())
+      .then(setAgentsList)
+      .catch(() => setAgentsList([]))
   }, [])
 
-  const order = ['ollama', 'sqlite_vec', 'external_api']
+  const handleRun = useCallback(
+    async (prompt: string) => {
+      setEvents([])
+      setSources(new Map())
+      setHighlighted(null)
+      setRunning(true)
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      const mergeSources = (refs: SourceRef[]) => {
+        if (refs.length === 0) return
+        setSources((prev) => {
+          const next = new Map(prev)
+          for (const s of refs) next.set(s.index, s)
+          return next
+        })
+      }
+
+      try {
+        await streamRun(
+          prompt,
+          selectedAgentId,
+          (event) => {
+            setEvents((prev) => [...prev, event])
+            if (event.type === 'tool_result' || event.type === 'answer_done') mergeSources(event.sources)
+          },
+          controller.signal,
+        )
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') {
+          setEvents((prev) => [
+            ...prev,
+            { type: 'error', run_id: 'client', ts: Date.now() / 1000, message: String(e), fatal: true },
+          ])
+        }
+      } finally {
+        setRunning(false)
+      }
+    },
+    [selectedAgentId],
+  )
+
+  function handleStop() {
+    abortRef.current?.abort()
+    setRunning(false)
+  }
+
+  function handleCiteClick(index: number) {
+    setHighlighted(index)
+    document.getElementById(`source-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    window.setTimeout(() => setHighlighted((h) => (h === index ? null : h)), 2500)
+  }
+
+  const knownIndices = new Set(sources.keys())
 
   return (
-    <div className="min-h-screen bg-(--color-ink) text-(--color-paper) px-6 py-10 md:px-16">
-      <header className="mb-10 border-b border-(--color-border) pb-6">
+    <div className="flex h-screen flex-col bg-(--color-ink) text-(--color-paper)">
+      <header className="flex items-center justify-between border-b border-(--color-border) px-6 py-3 md:px-10">
         <div className="flex items-baseline gap-3">
-          <h1 className="font-(family-name:--font-serif) italic text-4xl md:text-5xl tracking-tight">
-            NEWSROOM
-          </h1>
-          <span className="font-(family-name:--font-mono) text-xs uppercase tracking-[0.2em] text-(--color-amber)">
-            agentic desk · phase 0
+          <h1 className="font-(family-name:--font-serif) text-2xl italic tracking-tight">NEWSROOM</h1>
+          <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-[0.2em] text-(--color-amber)">
+            agentic desk
           </span>
         </div>
-        <p className="mt-2 font-(family-name:--font-mono) text-sm text-(--color-muted)">
-          system check — every subsystem the orchestrator will depend on, verified live.
-        </p>
+        <StatusStrip />
       </header>
 
-      <main className="max-w-2xl">
-        {error && (
-          <div className="mb-6 rounded border border-(--color-error) bg-(--color-surface) px-4 py-3 font-(family-name:--font-mono) text-sm text-(--color-error)">
-            {error}
-          </div>
-        )}
+      <Composer
+        agentsList={agentsList}
+        selectedAgentId={selectedAgentId}
+        onSelectAgent={setSelectedAgentId}
+        running={running}
+        onRun={handleRun}
+        onStop={handleStop}
+      />
 
-        <div className="rounded border border-(--color-border) bg-(--color-surface) divide-y divide-(--color-border)">
-          {order.map((key) => {
-            const result = health?.checks?.[key]
-            return (
-              <div key={key} className="flex items-start gap-3 px-4 py-3">
-                <div className="mt-1">
-                  <StatusDot ok={result?.ok as boolean | undefined} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-(family-name:--font-sans) text-sm font-medium">
-                    {LABELS[key]}
-                  </div>
-                  <div className="font-(family-name:--font-mono) text-xs text-(--color-muted) truncate">
-                    {result ? detailLine(key, result) : 'checking…'}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="mt-4 flex items-center justify-between font-(family-name:--font-mono) text-xs text-(--color-muted)">
-          <span>
-            overall: {health ? (health.ok ? <span className="text-(--color-ok)">ready</span> : <span className="text-(--color-error)">not ready</span>) : '—'}
-            {health?.demo_mode ? '  ·  demo mode' : ''}
-          </span>
-          <span>last checked {checkedAt || '—'}</span>
-        </div>
-      </main>
+      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[1fr_320px]">
+        <TracePane events={events} running={running} knownIndices={knownIndices} onCiteClick={handleCiteClick} />
+        <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
+      </div>
     </div>
   )
 }

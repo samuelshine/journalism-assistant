@@ -1,9 +1,9 @@
 """NEWSROOM API — FastAPI app.
 
 Phase 0: health check proving the whole stack is wired (Ollama reachable,
-required models present, sqlite-vec loaded, one live external API reachable)
-plus static serving of the built frontend in demo mode. Chat/orchestrator
-endpoints land in Phase 1.
+required models present, sqlite-vec loaded, one live external API reachable).
+Phase 1: /api/run streams the agent loop (orchestrator.py) as SSE events —
+this is the endpoint the Trace pane consumes.
 """
 from __future__ import annotations
 
@@ -14,10 +14,16 @@ import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from sse_starlette.sse import EventSourceResponse
 
+import agents
 import config
 import ollama_client
+import orchestrator
+from events import sse_format
 from store import db
+from tools.web_ua import WIKIMEDIA_UA
 
 app = FastAPI(title="NEWSROOM API")
 
@@ -29,10 +35,6 @@ app.add_middleware(
 )
 
 REQUIRED_MODELS = {config.MODEL_REASONING, config.MODEL_LONGCTX, config.MODEL_FAST, config.MODEL_EMBED}
-
-# Wikimedia requires a descriptive User-Agent on API requests (returns 403
-# without one) — https://meta.wikimedia.org/wiki/User-Agent_policy
-WIKIMEDIA_UA = "NewsroomJournalismAssistant/0.1 (educational demo; contact: samuelshine112003@gmail.com)"
 
 
 def _bare_name(name: str) -> str:
@@ -100,6 +102,30 @@ async def warm_models():
             pass  # health page will surface the real problem if any
 
     asyncio.create_task(_warm())
+
+
+@app.get("/api/agents")
+async def list_agents():
+    return [
+        {"id": a.id, "name": a.name, "description": a.description, "color": a.color, "tools": a.tools}
+        for a in agents.AGENTS.values()
+    ]
+
+
+class RunRequest(BaseModel):
+    prompt: str
+    agent: str = "researcher"
+
+
+@app.post("/api/run")
+async def run_agent(req: RunRequest):
+    agent = agents.get(req.agent)
+
+    async def event_stream():
+        async for event in orchestrator.run(req.prompt, agent):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
 
 
 # --- static serve of built frontend (demo mode / single-command run) ---

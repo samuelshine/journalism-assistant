@@ -13,6 +13,13 @@ load_dotenv(ROOT / ".env")
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
+# Ollama defaults to num_ctx=4096 for every model regardless of what it was
+# trained with — a verbose tool result (a batch of RSS headlines, a fetched
+# article) can silently push the system prompt and the original question
+# out of the model's effective window. 8192 is comfortable on 24GB unified
+# memory for one 12-14B model resident at a time; raise via .env if needed.
+MODEL_NUM_CTX = int(os.getenv("MODEL_NUM_CTX", "8192"))
+
 # task-kind -> model. See apps/api/router.py for the rationale shown to users.
 MODEL_REASONING = os.getenv("MODEL_REASONING", "qwen2.5:14b")
 MODEL_LONGCTX = os.getenv("MODEL_LONGCTX", "mistral-nemo:12b")
