@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+  NEWSROOM design tokens.
+  Direction: a wire-service desk at night — ink-dark surfaces, a working
+  amber accent (the "on air" / "filing" colour), monospace for anything
+  that is a trace or a timestamp, editorial serif for anything that is a
+  draft a reporter would actually publish. Agent identity colours are
+  used only as thin accents (dots, left-borders), never as backgrounds.
+*/
+@theme {
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --color-ink: #0b0c0e;
+  --color-surface: #15171b;
+  --color-surface-raised: #1c1f24;
+  --color-border: #2a2e35;
+  --color-paper: #e9e6dd;
+  --color-muted: #9498a0;
+
+  --color-amber: #d98e3b;
+  --color-ok: #4c9a6a;
+  --color-warn: #d9a63e;
+  --color-error: #c4453d;
+
+  --color-agent-chief: #5c7aea;
+  --color-agent-scout: #3fb8af;
+  --color-agent-researcher: #d98e3b;
+  --color-agent-factchecker: #c4453d;
+  --color-agent-interviewer: #8b6fd9;
+  --color-agent-editor: #4c9a6a;
+  --color-agent-ethicist: #e9e6dd;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-amber) 35%, transparent);
+}
+
+/* respect reduced motion throughout the app */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
