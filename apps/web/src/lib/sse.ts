@@ -32,6 +32,24 @@ export async function streamBeatRunNow(beatId: string, onEvent: (event: AgentEve
   await consumeSSE(res, onEvent)
 }
 
+export async function streamArticleSection(
+  articleId: string,
+  instruction: string,
+  onEvent: (event: AgentEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  return streamFrom(`/api/articles/${articleId}/sections`, { instruction }, onEvent, signal)
+}
+
+export async function streamArticleRevise(
+  articleId: string,
+  instruction: string,
+  onEvent: (event: AgentEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  return streamFrom(`/api/articles/${articleId}/revise`, { instruction }, onEvent, signal)
+}
+
 // A dropped file or a mic-recorded Blob — same endpoint, ffmpeg reads
 // either. The field name must match FastAPI's `file: UploadFile` param.
 export async function streamMediaUpload(

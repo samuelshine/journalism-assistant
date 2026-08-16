@@ -8,7 +8,7 @@ interface Props {
 
 export default function EvidenceDrawer({ sources, highlightedIndex }: Props) {
   return (
-    <div className="flex h-full flex-col border-l border-(--color-rule) bg-(--color-paper-sunken)">
+    <div className="flex h-full w-80 shrink-0 flex-col border-l border-(--color-rule) bg-(--color-paper-sunken)">
       <div className="flex items-center justify-between border-b border-(--color-rule) px-4 py-3">
         <span className="font-(family-name:--font-display) text-[15px] text-(--color-ink)">Sources</span>
         <span className="font-(family-name:--font-sans) text-[11px] text-(--color-ink-faint)">{sources.length}</span>

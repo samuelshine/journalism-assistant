@@ -50,7 +50,10 @@ def _section_prompt(article: Article, instruction: str) -> str:
         "wikipedia_summary if you need to check something specific, and cite whatever number "
         "the tool gives you. You have no live news search here — if the request needs a fact "
         "you can't verify with what you have, say plainly what's missing (\"this needs a "
-        "reporter to confirm X\") rather than writing it as if it were established."
+        "reporter to confirm X\") rather than writing it as if it were established. Never "
+        "attach a [n] citation marker to a claim you couldn't actually verify — an unverified "
+        "sentence gets no marker at all, not a number borrowed from a source that doesn't "
+        "support it."
     )
 
 

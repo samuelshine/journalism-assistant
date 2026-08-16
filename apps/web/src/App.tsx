@@ -3,6 +3,7 @@ import StatusStrip from './components/StatusStrip'
 import { streamCrew, streamRun } from './lib/sse'
 import BeatInbox from './panes/BeatInbox'
 import Composer from './panes/Composer'
+import Draft from './panes/Draft'
 import EvidenceDrawer from './panes/EvidenceDrawer'
 import HallucinationLab from './panes/HallucinationLab'
 import StoryDesk from './panes/StoryDesk'
@@ -11,10 +12,11 @@ import TracePane from './panes/TracePane'
 import type { AgentEvent, AgentInfo, SourceRef } from './types/events'
 import type { RunHistoryEntry } from './types/history'
 
-type Tab = 'desk' | 'studio' | 'lab' | 'beats'
+type Tab = 'desk' | 'draft' | 'studio' | 'lab' | 'beats'
 
 const TAB_LABEL: Record<Tab, string> = {
   desk: 'The Desk',
+  draft: 'Draft',
   studio: 'Studio',
   lab: 'Compare',
   beats: 'Beats',
@@ -32,6 +34,7 @@ export default function App() {
   const [history, setHistory] = useState<RunHistoryEntry[]>([])
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null)
   const [deskOpen, setDeskOpen] = useState(false)
+  const [activeArticleId, setActiveArticleId] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -129,6 +132,21 @@ export default function App() {
     handleRun(prompt, agentId)
   }
 
+  // From TracePane: "Open in Draft workspace" on a finished answer —
+  // persists it server-side as an editable Article, then switches to the
+  // Draft tab with it loaded.
+  async function handlePromoteToDraft(title: string, body: string, articleSources: SourceRef[], originRunId: string | null) {
+    const res = await fetch('/api/articles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body_markdown: body, sources: articleSources, origin_run_id: originRunId }),
+    })
+    if (!res.ok) return
+    const article = await res.json()
+    setActiveArticleId(article.id)
+    setTab('draft')
+  }
+
   const knownIndices = new Set(sources.keys())
   const today = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -198,10 +216,14 @@ export default function App() {
               knownIndices={knownIndices}
               onCiteClick={handleCiteClick}
               agentsById={agentsById}
+              onPromoteToDraft={handlePromoteToDraft}
             />
             <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
           </div>
         </>
+      )}
+      {tab === 'draft' && (
+        <Draft activeArticleId={activeArticleId} onActiveArticleHandled={() => setActiveArticleId(null)} />
       )}
       {tab === 'studio' && (
         <div className="min-h-0 flex-1">
