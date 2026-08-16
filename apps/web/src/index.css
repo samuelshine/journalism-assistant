@@ -66,6 +66,20 @@ body {
   background: color-mix(in srgb, var(--color-highlight) 80%, transparent);
 }
 
+/* Marks text just appended by "Add a section" — fades over ~2.5s so the
+   journalist can see what the desk added without it staying flagged. */
+.fade-highlight {
+  animation: fade-highlight 2.5s ease-out forwards;
+}
+@keyframes fade-highlight {
+  from {
+    background: color-mix(in srgb, var(--color-highlight) 70%, transparent);
+  }
+  to {
+    background: transparent;
+  }
+}
+
 /* Drop cap — the article-typesetting signature. Applied via .drop-cap on
    the first paragraph of a generated answer. */
 .drop-cap::first-letter {

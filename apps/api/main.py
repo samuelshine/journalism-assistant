@@ -277,11 +277,14 @@ async def get_article(article_id: str):
 class UpdateArticleRequest(BaseModel):
     title: str | None = None
     body_markdown: str | None = None
+    sources: list[dict] | None = None
 
 
 @app.patch("/api/articles/{article_id}")
 async def update_article(article_id: str, req: UpdateArticleRequest):
-    article = articles_store.update_article(article_id, title=req.title, body_markdown=req.body_markdown)
+    article = articles_store.update_article(
+        article_id, title=req.title, body_markdown=req.body_markdown, sources=req.sources
+    )
     if article is None:
         raise HTTPException(404, "Article not found")
     return article

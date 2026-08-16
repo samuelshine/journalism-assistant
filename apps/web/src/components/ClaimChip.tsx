@@ -19,12 +19,14 @@ export default function ClaimChip({ index, resolved, onClick }: Props) {
         e.stopPropagation()
         onClick(index)
       }}
-      title={resolved ? `Jump to source ${index}` : `This citation doesn't match a real source — worth double-checking`}
+      title={resolved ? `Jump to source ${index}` : `Unverified — the AI cited this but no real source backs it up`}
       className={`align-super font-(family-name:--font-serif) text-[0.7em] font-semibold leading-none ${
-        resolved ? 'text-(--color-masthead) hover:underline' : 'text-(--color-error) hover:underline'
+        resolved
+          ? 'text-(--color-masthead) hover:underline'
+          : 'rounded-[2px] bg-(--color-error)/15 px-0.5 text-(--color-error) underline decoration-dashed decoration-1 underline-offset-2 hover:bg-(--color-error)/25'
       }`}
     >
-      [{index}]
+      {resolved ? `[${index}]` : `[${index} ⚠]`}
     </button>
   )
 }

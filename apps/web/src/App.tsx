@@ -223,7 +223,11 @@ export default function App() {
         </>
       )}
       {tab === 'draft' && (
-        <Draft activeArticleId={activeArticleId} onActiveArticleHandled={() => setActiveArticleId(null)} />
+        <Draft
+          activeArticleId={activeArticleId}
+          onActiveArticleHandled={() => setActiveArticleId(null)}
+          agentsById={agentsById}
+        />
       )}
       {tab === 'studio' && (
         <div className="min-h-0 flex-1">

@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AnswerView from '../components/AnswerView'
+import NotebookEntry from '../components/NotebookEntry'
+import { streamArticleRevise, streamArticleSection } from '../lib/sse'
+import { buildNotebook } from '../lib/notebook'
+import type { AgentEvent, AgentInfo, SourceRef } from '../types/events'
 import type { Article } from '../types/articles'
 import EvidenceDrawer from './EvidenceDrawer'
 
 interface Props {
   activeArticleId: string | null
   onActiveArticleHandled: () => void
+  agentsById: Record<string, AgentInfo>
 }
+
+type ToolMode = 'section' | 'revise' | null
 
 function timeAgo(ts: number): string {
   const seconds = Math.round(Date.now() / 1000 - ts)
@@ -69,7 +76,7 @@ function DraftList({
   )
 }
 
-export default function Draft({ activeArticleId, onActiveArticleHandled }: Props) {
+export default function Draft({ activeArticleId, onActiveArticleHandled, agentsById }: Props) {
   const [articles, setArticles] = useState<Article[]>([])
   const [active, setActive] = useState<Article | null>(null)
   const [editing, setEditing] = useState(false)
@@ -78,6 +85,14 @@ export default function Draft({ activeArticleId, onActiveArticleHandled }: Props
   const [highlighted, setHighlighted] = useState<number | null>(null)
   const saveTimer = useRef<number | undefined>(undefined)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const [toolMode, setToolMode] = useState<ToolMode>(null)
+  const [instruction, setInstruction] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [streamEvents, setStreamEvents] = useState<AgentEvent[]>([])
+  const [justAppended, setJustAppended] = useState<string | null>(null)
+  const [revisionProposal, setRevisionProposal] = useState<{ text: string; sources: SourceRef[] } | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   function handleCiteClick(index: number) {
     setHighlighted(index)
@@ -100,6 +115,11 @@ export default function Draft({ activeArticleId, onActiveArticleHandled }: Props
     const article: Article = await res.json()
     setActive(article)
     setEditing(false)
+    setToolMode(null)
+    setInstruction('')
+    setStreamEvents([])
+    setJustAppended(null)
+    setRevisionProposal(null)
   }, [])
 
   // A run's answer card ("Open in Draft workspace") sets this from App.tsx;
@@ -150,6 +170,108 @@ export default function Draft({ activeArticleId, onActiveArticleHandled }: Props
     refresh()
   }
 
+  async function persistNow(articleId: string, next: Partial<Pick<Article, 'body_markdown' | 'sources'>>) {
+    setSaveState('saving')
+    const res = await fetch(`/api/articles/${articleId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(next),
+    })
+    if (res.ok) {
+      const updated: Article = await res.json()
+      setActive(updated)
+      setArticles((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
+      setSaveState('saved')
+    }
+  }
+
+  function cancelTool() {
+    abortRef.current?.abort()
+    setToolMode(null)
+    setInstruction('')
+    setBusy(false)
+    setStreamEvents([])
+  }
+
+  async function submitSection() {
+    if (!active || !instruction.trim()) return
+    setBusy(true)
+    setStreamEvents([])
+    const controller = new AbortController()
+    abortRef.current = controller
+    const articleId = active.id
+    let sectionText = ''
+    let sectionSources: SourceRef[] = active.sources
+    try {
+      await streamArticleSection(
+        articleId,
+        instruction.trim(),
+        (event) => {
+          setStreamEvents((prev) => [...prev, event])
+          if (event.type === 'answer_done') {
+            sectionText = event.text
+            sectionSources = event.sources
+          }
+        },
+        controller.signal,
+      )
+      if (sectionText) {
+        const combined = `${active.body_markdown.trimEnd()}\n\n${sectionText}`
+        setActive({ ...active, body_markdown: combined, sources: sectionSources })
+        setJustAppended(sectionText)
+        await persistNow(articleId, { body_markdown: combined, sources: sectionSources })
+        window.setTimeout(() => setJustAppended(null), 2500)
+      }
+    } catch {
+      // aborted or network error — the reporting notes above already show what happened
+    } finally {
+      setBusy(false)
+      setToolMode(null)
+      setInstruction('')
+    }
+  }
+
+  async function submitRevision() {
+    if (!active || !instruction.trim()) return
+    setBusy(true)
+    setStreamEvents([])
+    setRevisionProposal(null)
+    const controller = new AbortController()
+    abortRef.current = controller
+    try {
+      await streamArticleRevise(
+        active.id,
+        instruction.trim(),
+        (event) => {
+          setStreamEvents((prev) => [...prev, event])
+          if (event.type === 'answer_done') {
+            setRevisionProposal({ text: event.text, sources: event.sources })
+          }
+        },
+        controller.signal,
+      )
+    } catch {
+      // aborted or network error — the reporting notes above already show what happened
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function acceptRevision() {
+    if (!active || !revisionProposal) return
+    const { text, sources } = revisionProposal
+    setActive({ ...active, body_markdown: text, sources })
+    setRevisionProposal(null)
+    setToolMode(null)
+    setInstruction('')
+    setStreamEvents([])
+    await persistNow(active.id, { body_markdown: text, sources })
+  }
+
+  function discardRevision() {
+    setRevisionProposal(null)
+  }
+
   const knownIndices = new Set((active?.sources ?? []).map((s) => s.index))
 
   return (
@@ -178,6 +300,122 @@ export default function Draft({ activeArticleId, onActiveArticleHandled }: Props
             </div>
             <div className="mb-4 h-[3px] w-16 bg-(--color-masthead)" />
 
+            <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-(--color-rule) pb-4">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setToolMode(toolMode === 'section' ? null : 'section')
+                  setInstruction('')
+                  setStreamEvents([])
+                  setRevisionProposal(null)
+                }}
+                className={`font-(family-name:--font-sans) text-[12px] font-medium ${
+                  toolMode === 'section' ? 'text-(--color-masthead)' : 'text-(--color-ink-soft) hover:text-(--color-ink)'
+                } disabled:opacity-40`}
+              >
+                + Add a section
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setToolMode(toolMode === 'revise' ? null : 'revise')
+                  setInstruction('')
+                  setStreamEvents([])
+                  setRevisionProposal(null)
+                }}
+                className={`font-(family-name:--font-sans) text-[12px] font-medium ${
+                  toolMode === 'revise' ? 'text-(--color-masthead)' : 'text-(--color-ink-soft) hover:text-(--color-ink)'
+                } disabled:opacity-40`}
+              >
+                Ask for a revision
+              </button>
+
+              {toolMode && (
+                <div className="flex w-full items-center gap-2">
+                  <input
+                    autoFocus
+                    disabled={busy}
+                    value={instruction}
+                    onChange={(e) => setInstruction(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') toolMode === 'section' ? submitSection() : submitRevision()
+                      if (e.key === 'Escape') cancelTool()
+                    }}
+                    placeholder={
+                      toolMode === 'section'
+                        ? 'e.g. Add a section on the government’s response'
+                        : 'e.g. Make the second paragraph shorter'
+                    }
+                    className="flex-1 rounded-sm border border-(--color-rule) bg-(--color-paper-raised) px-3 py-1.5 font-(family-name:--font-serif) text-[13.5px] text-(--color-ink) focus:border-(--color-masthead) focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    disabled={busy || !instruction.trim()}
+                    onClick={() => (toolMode === 'section' ? submitSection() : submitRevision())}
+                    className="shrink-0 rounded-sm bg-(--color-masthead) px-3 py-1.5 font-(family-name:--font-sans) text-[12px] font-medium text-(--color-paper) disabled:opacity-40"
+                  >
+                    {busy ? 'Working…' : 'Go'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelTool}
+                    className="shrink-0 font-(family-name:--font-sans) text-[12px] text-(--color-ink-faint) hover:text-(--color-ink)"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {streamEvents.length > 0 && (busy || toolMode) && (
+                <div className="w-full divide-y divide-(--color-rule)/60 rounded-sm border border-(--color-rule) bg-(--color-paper-sunken) px-3 py-1.5">
+                  {buildNotebook(streamEvents).map((entry) => (
+                    <NotebookEntry key={entry.key} entry={entry} agentsById={agentsById} />
+                  ))}
+                  {busy && (
+                    <div className="flex items-center gap-2 py-2 font-(family-name:--font-serif) text-[12.5px] text-(--color-ink-faint) italic">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-masthead)" />
+                      still working…
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {revisionProposal && (
+              <div className="mb-5 shrink-0 overflow-hidden rounded-sm border border-(--color-masthead)">
+                <div className="flex items-center justify-between bg-(--color-masthead) px-4 py-2">
+                  <span className="font-(family-name:--font-sans) text-[11px] font-semibold tracking-[0.08em] text-(--color-paper) uppercase">
+                    Proposed revision — nothing is changed until you accept
+                  </span>
+                </div>
+                <div className="bg-(--color-paper-raised) px-5 py-4">
+                  <AnswerView
+                    text={revisionProposal.text}
+                    knownIndices={new Set(revisionProposal.sources.map((s) => s.index))}
+                    onCiteClick={() => {}}
+                  />
+                  <div className="mt-4 flex gap-3 border-t border-(--color-rule) pt-3">
+                    <button
+                      type="button"
+                      onClick={acceptRevision}
+                      className="rounded-sm bg-(--color-masthead) px-3 py-1.5 font-(family-name:--font-sans) text-[12px] font-medium text-(--color-paper)"
+                    >
+                      Accept — replace the draft
+                    </button>
+                    <button
+                      type="button"
+                      onClick={discardRevision}
+                      className="font-(family-name:--font-sans) text-[12px] text-(--color-ink-faint) hover:text-(--color-ink)"
+                    >
+                      Discard
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {editing ? (
               <textarea
                 ref={textareaRef}
@@ -205,7 +443,20 @@ export default function Draft({ activeArticleId, onActiveArticleHandled }: Props
                 onKeyDown={(e) => e.key === 'Enter' && startEditing()}
                 className="cursor-text text-left"
               >
-                <AnswerView text={active.body_markdown} knownIndices={knownIndices} onCiteClick={handleCiteClick} />
+                {justAppended && active.body_markdown.endsWith(justAppended) ? (
+                  <>
+                    <AnswerView
+                      text={active.body_markdown.slice(0, -justAppended.length).trimEnd()}
+                      knownIndices={knownIndices}
+                      onCiteClick={handleCiteClick}
+                    />
+                    <div className="fade-highlight -mx-2 rounded-sm px-2">
+                      <AnswerView text={justAppended} knownIndices={knownIndices} onCiteClick={handleCiteClick} />
+                    </div>
+                  </>
+                ) : (
+                  <AnswerView text={active.body_markdown} knownIndices={knownIndices} onCiteClick={handleCiteClick} />
+                )}
               </div>
             )}
           </>

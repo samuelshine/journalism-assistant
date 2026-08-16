@@ -70,7 +70,7 @@ export default function TracePane({ events, running, knownIndices, onCiteClick, 
         const info = agentsById[answerEvent.agent]
         const canPromote = onPromoteToDraft && !NON_ARTICLE_AGENTS.has(answerEvent.agent)
         return (
-          <div key={i} className="mt-5 overflow-hidden rounded-sm border border-(--color-rule) bg-(--color-paper-raised)">
+          <div key={i} className="mt-5 shrink-0 overflow-hidden rounded-sm border border-(--color-rule) bg-(--color-paper-raised)">
             <div
               className="flex items-center justify-between border-b-2 border-(--color-masthead) px-6 py-2.5"
               style={info ? { borderLeftColor: `var(--color-${info.color})`, borderLeftWidth: 3 } : undefined}
