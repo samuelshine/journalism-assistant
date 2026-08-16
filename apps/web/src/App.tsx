@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import StatusStrip from './components/StatusStrip'
-import { streamRun } from './lib/sse'
+import { streamCrew, streamRun } from './lib/sse'
 import Composer from './panes/Composer'
 import EvidenceDrawer from './panes/EvidenceDrawer'
+import StoryDesk from './panes/StoryDesk'
 import TracePane from './panes/TracePane'
 import type { AgentEvent, AgentInfo, SourceRef } from './types/events'
+import type { RunHistoryEntry } from './types/history'
 
 export default function App() {
   const [agentsList, setAgentsList] = useState<AgentInfo[]>([])
@@ -13,6 +15,9 @@ export default function App() {
   const [sources, setSources] = useState<Map<number, SourceRef>>(new Map())
   const [running, setRunning] = useState(false)
   const [highlighted, setHighlighted] = useState<number | null>(null)
+  const [history, setHistory] = useState<RunHistoryEntry[]>([])
+  const [activeEntryId, setActiveEntryId] = useState<string | null>(null)
+  const [deskOpen, setDeskOpen] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -22,8 +27,13 @@ export default function App() {
       .catch(() => setAgentsList([]))
   }, [])
 
+  const agentsById = useMemo(() => Object.fromEntries(agentsList.map((a) => [a.id, a])), [agentsList])
+
   const handleRun = useCallback(
     async (prompt: string) => {
+      const entryId = crypto.randomUUID()
+      const agentAtStart = selectedAgentId
+      setActiveEntryId(entryId)
       setEvents([])
       setSources(new Map())
       setHighlighted(null)
@@ -31,6 +41,7 @@ export default function App() {
       const controller = new AbortController()
       abortRef.current = controller
 
+      let liveEvents: AgentEvent[] = []
       const mergeSources = (refs: SourceRef[]) => {
         if (refs.length === 0) return
         setSources((prev) => {
@@ -39,26 +50,30 @@ export default function App() {
           return next
         })
       }
+      const onEvent = (event: AgentEvent) => {
+        liveEvents = [...liveEvents, event]
+        setEvents(liveEvents)
+        if (event.type === 'tool_result' || event.type === 'answer_done') mergeSources(event.sources)
+      }
 
       try {
-        await streamRun(
-          prompt,
-          selectedAgentId,
-          (event) => {
-            setEvents((prev) => [...prev, event])
-            if (event.type === 'tool_result' || event.type === 'answer_done') mergeSources(event.sources)
-          },
-          controller.signal,
-        )
+        if (agentAtStart === 'desk_chief') {
+          await streamCrew(prompt, onEvent, controller.signal)
+        } else {
+          await streamRun(prompt, agentAtStart, onEvent, controller.signal)
+        }
       } catch (e) {
         if ((e as Error).name !== 'AbortError') {
-          setEvents((prev) => [
-            ...prev,
-            { type: 'error', run_id: 'client', ts: Date.now() / 1000, message: String(e), fatal: true },
-          ])
+          const errEvent: AgentEvent = { type: 'error', run_id: 'client', ts: Date.now() / 1000, message: String(e), fatal: true }
+          liveEvents = [...liveEvents, errEvent]
+          setEvents(liveEvents)
         }
       } finally {
         setRunning(false)
+        setHistory((prev) => [
+          ...prev,
+          { id: entryId, prompt, agentId: agentAtStart, startedAt: Date.now(), events: liveEvents, sources: [] },
+        ])
       }
     },
     [selectedAgentId],
@@ -75,6 +90,20 @@ export default function App() {
     window.setTimeout(() => setHighlighted((h) => (h === index ? null : h)), 2500)
   }
 
+  function handleSelectHistory(entry: RunHistoryEntry) {
+    setActiveEntryId(entry.id)
+    setEvents(entry.events)
+    const map = new Map<number, SourceRef>()
+    for (const e of entry.events) {
+      if (e.type === 'tool_result' || e.type === 'answer_done') {
+        for (const s of e.sources) map.set(s.index, s)
+      }
+    }
+    setSources(map)
+    setSelectedAgentId(entry.agentId)
+    setDeskOpen(false)
+  }
+
   const knownIndices = new Set(sources.keys())
 
   return (
@@ -86,7 +115,16 @@ export default function App() {
             agentic desk
           </span>
         </div>
-        <StatusStrip />
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setDeskOpen(true)}
+            className="font-(family-name:--font-mono) text-[11px] text-(--color-muted) hover:text-(--color-paper)"
+          >
+            Story Desk{history.length > 0 ? ` (${history.length})` : ''}
+          </button>
+          <StatusStrip />
+        </div>
       </header>
 
       <Composer
@@ -99,9 +137,24 @@ export default function App() {
       />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[1fr_320px]">
-        <TracePane events={events} running={running} knownIndices={knownIndices} onCiteClick={handleCiteClick} />
+        <TracePane
+          events={events}
+          running={running}
+          knownIndices={knownIndices}
+          onCiteClick={handleCiteClick}
+          agentsById={agentsById}
+        />
         <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
       </div>
+
+      <StoryDesk
+        open={deskOpen}
+        onClose={() => setDeskOpen(false)}
+        history={history}
+        agentsById={agentsById}
+        onSelect={handleSelectHistory}
+        activeId={activeEntryId}
+      />
     </div>
   )
 }

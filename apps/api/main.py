@@ -19,6 +19,7 @@ from sse_starlette.sse import EventSourceResponse
 
 import agents
 import config
+import crew
 import ollama_client
 import orchestrator
 from events import sse_format
@@ -123,6 +124,19 @@ async def run_agent(req: RunRequest):
 
     async def event_stream():
         async for event in orchestrator.run(req.prompt, agent):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+class CrewRequest(BaseModel):
+    prompt: str
+
+
+@app.post("/api/crew")
+async def run_crew(req: CrewRequest):
+    async def event_stream():
+        async for event in crew.run_crew(req.prompt):
             yield sse_format(event)
 
     return EventSourceResponse(event_stream())

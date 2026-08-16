@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { AgentEvent } from '../types/events'
+import type { AgentEvent, AgentInfo } from '../types/events'
 import AnswerView from '../components/AnswerView'
 import TraceStep from '../components/TraceStep'
 
@@ -8,16 +8,20 @@ interface Props {
   running: boolean
   knownIndices: Set<number>
   onCiteClick: (index: number) => void
+  agentsById: Record<string, AgentInfo>
 }
 
-export default function TracePane({ events, running, knownIndices, onCiteClick }: Props) {
+export default function TracePane({ events, running, knownIndices, onCiteClick, agentsById }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: 'end' })
   }, [events.length])
 
-  const answerEvent = events.find((e) => e.type === 'answer_done')
+  // A crew run produces one answer per stage (Researcher, then Editor, then
+  // Ethicist, …) — each renders as its own card, in order, so the reader
+  // can see the pipeline's work build up rather than only the final output.
+  const answerEvents = events.filter((e) => e.type === 'answer_done')
   const traceEvents = events.filter((e) => e.type !== 'answer_done')
 
   return (
@@ -30,25 +34,36 @@ export default function TracePane({ events, running, knownIndices, onCiteClick }
 
       <div className="space-y-0.5">
         {traceEvents.map((e, i) => (
-          <TraceStep key={i} event={e} />
+          <TraceStep key={i} event={e} agentsById={agentsById} />
         ))}
       </div>
 
-      {running && !answerEvent && (
+      {running && (
         <div className="flex items-center gap-2 py-2 font-(family-name:--font-mono) text-xs text-(--color-muted)">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-amber)" />
           working…
         </div>
       )}
 
-      {answerEvent && answerEvent.type === 'answer_done' && (
-        <div className="mt-4 rounded border border-(--color-border) bg-(--color-surface) p-5">
-          <div className="mb-3 font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
-            Answer
+      {answerEvents.map((answerEvent, i) => {
+        if (answerEvent.type !== 'answer_done') return null
+        const info = agentsById[answerEvent.agent]
+        return (
+          <div key={i} className="mt-4 overflow-hidden rounded border border-(--color-border) bg-(--color-surface)">
+            <div
+              className="flex items-center gap-2 border-b border-(--color-border) px-5 py-2.5"
+              style={info ? { borderLeft: `3px solid var(--color-${info.color})` } : undefined}
+            >
+              <span className="font-(family-name:--font-mono) text-[10px] uppercase tracking-widest text-(--color-muted)">
+                {info?.name ?? answerEvent.agent}
+              </span>
+            </div>
+            <div className="p-5">
+              <AnswerView text={answerEvent.text} knownIndices={knownIndices} onCiteClick={onCiteClick} />
+            </div>
           </div>
-          <AnswerView text={answerEvent.text} knownIndices={knownIndices} onCiteClick={onCiteClick} />
-        </div>
-      )}
+        )
+      })}
 
       <div ref={bottomRef} />
     </div>

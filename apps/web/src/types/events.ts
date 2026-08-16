@@ -42,6 +42,19 @@ export interface ToolResultEvent extends BaseEvent {
   error: string | null
 }
 
+export interface HandoffEvent extends BaseEvent {
+  type: 'handoff'
+  from_agent: string
+  to_agent: string
+  reason: string
+}
+
+export interface RouteDecidedEvent extends BaseEvent {
+  type: 'route_decided'
+  chosen: string[]
+  rationale: string
+}
+
 export interface ModelSelectedEvent extends BaseEvent {
   type: 'model_selected'
   agent: string
@@ -73,6 +86,8 @@ export type AgentEvent =
   | ThinkingEvent
   | ToolCallEvent
   | ToolResultEvent
+  | HandoffEvent
+  | RouteDecidedEvent
   | ModelSelectedEvent
   | AnswerDoneEvent
   | ErrorEvent

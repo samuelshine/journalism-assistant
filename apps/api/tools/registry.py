@@ -4,7 +4,19 @@ to a role, not a global grab-bag."""
 from __future__ import annotations
 
 import config
-from . import fetch_url, gdelt, nominatim, openalex, readability, rss, wayback, wikidata, wikipedia
+from . import (
+    extract_claims,
+    fetch_url,
+    gdelt,
+    nominatim,
+    openalex,
+    readability,
+    rss,
+    search_memory,
+    wayback,
+    wikidata,
+    wikipedia,
+)
 from .base import Tool, ToolResult
 
 ALL_TOOLS: dict[str, Tool] = {
@@ -19,6 +31,8 @@ ALL_TOOLS: dict[str, Tool] = {
         openalex.TOOL,
         fetch_url.TOOL,
         readability.TOOL,
+        extract_claims.TOOL,
+        search_memory.TOOL,
     ]
 }
 

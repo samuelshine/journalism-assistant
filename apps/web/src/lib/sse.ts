@@ -9,10 +9,26 @@ export async function streamRun(
   onEvent: (event: AgentEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  const res = await fetch('/api/run', {
+  return streamFrom('/api/run', { prompt, agent: agentId }, onEvent, signal)
+}
+
+// Desk Chief auto-routes the request across a small pipeline of agents
+// (see apps/api/crew.py) — same event stream shape, just no fixed agent id
+// since the route itself is decided server-side.
+export async function streamCrew(prompt: string, onEvent: (event: AgentEvent) => void, signal?: AbortSignal): Promise<void> {
+  return streamFrom('/api/crew', { prompt }, onEvent, signal)
+}
+
+async function streamFrom(
+  url: string,
+  body: Record<string, string>,
+  onEvent: (event: AgentEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, agent: agentId }),
+    body: JSON.stringify(body),
     signal,
   })
   if (!res.ok || !res.body) {

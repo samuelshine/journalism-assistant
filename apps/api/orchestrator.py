@@ -26,6 +26,7 @@ from events import (
     ToolResultEvent,
 )
 from router import select_model
+from store import memory
 from tools.base import Source, ToolResult
 from tools.registry import available, dispatch, schemas_for
 
@@ -67,9 +68,15 @@ def _tool_result_content(summary: str, ok: bool, error: str | None, cited: list[
     return "\n".join(lines)
 
 
-async def run(prompt: str, agent: Agent, run_id: str | None = None) -> AsyncIterator[BaseEvent]:
+async def run(
+    prompt: str, agent: Agent, run_id: str | None = None, registry: SourceRegistry | None = None
+) -> AsyncIterator[BaseEvent]:
+    """registry: pass a shared SourceRegistry when chaining agents (see
+    crew.py) so citation numbers stay unique across the whole pipeline —
+    without this, a second agent's sources would restart at [1] and
+    collide with the first agent's [1] in the combined evidence view."""
     run_id = run_id or uuid.uuid4().hex[:12]
-    registry = SourceRegistry()
+    registry = registry if registry is not None else SourceRegistry()
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": agent.system_prompt},
         {"role": "user", "content": prompt},
@@ -103,6 +110,7 @@ async def run(prompt: str, agent: Agent, run_id: str | None = None) -> AsyncIter
                     yield ErrorEvent(run_id=run_id, message="Model returned an empty answer.", fatal=True)
                     break
                 yield AnswerDoneEvent(run_id=run_id, agent=agent.id, text=text, sources=registry.as_dicts())
+                await memory.save(run_id, agent.id, text)
                 break
 
             messages.append({"role": "assistant", "content": message.get("content", ""), "tool_calls": tool_calls})

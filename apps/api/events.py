@@ -54,12 +54,20 @@ class ToolResultEvent(BaseEvent):
 
 
 class HandoffEvent(BaseEvent):
-    """One agent hands the task to another (Phase 2+)."""
+    """One agent hands the task to another."""
 
     type: Literal["handoff"] = "handoff"
     from_agent: str
     to_agent: str
     reason: str
+
+
+class RouteDecidedEvent(BaseEvent):
+    """Desk Chief's routing decision — which agents, in what order, and why."""
+
+    type: Literal["route_decided"] = "route_decided"
+    chosen: list[str]
+    rationale: str
 
 
 class ModelSelectedEvent(BaseEvent):
@@ -106,6 +114,7 @@ AgentEvent = (
     | ToolCallEvent
     | ToolResultEvent
     | HandoffEvent
+    | RouteDecidedEvent
     | ModelSelectedEvent
     | AnswerTokenEvent
     | AnswerDoneEvent
