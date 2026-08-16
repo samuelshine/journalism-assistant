@@ -48,6 +48,14 @@ body {
   background: color-mix(in srgb, var(--color-amber) 35%, transparent);
 }
 
+/* Presenter mode — scales the whole UI up for projecting on a classroom
+   screen. Tailwind's text-* utilities are rem-based by default, so bumping
+   the root font-size cascades through every pane without per-component
+   overrides. */
+[data-presenter='true'] {
+  font-size: 130%;
+}
+
 /* respect reduced motion throughout the app */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

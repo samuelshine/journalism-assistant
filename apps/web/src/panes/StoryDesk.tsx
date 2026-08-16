@@ -1,3 +1,4 @@
+import { buildMarkdown, downloadMarkdown } from '../lib/export'
 import type { AgentInfo } from '../types/events'
 import type { RunHistoryEntry } from '../types/history'
 
@@ -53,26 +54,33 @@ export default function StoryDesk({ open, onClose, history, agentsById, onSelect
             [...history].reverse().map((entry) => {
               const info = agentsById[entry.agentId]
               return (
-                <button
+                <div
                   key={entry.id}
-                  type="button"
-                  onClick={() => onSelect(entry)}
-                  className={`block w-full rounded border px-3 py-2 text-left transition-colors ${
+                  className={`rounded border px-3 py-2 transition-colors ${
                     entry.id === activeId
                       ? 'border-(--color-amber) bg-(--color-surface-raised)'
                       : 'border-(--color-border) hover:border-(--color-muted)'
                   }`}
                 >
-                  <div className="mb-1 flex items-center gap-1.5">
-                    {info && (
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `var(--color-${info.color})` }} />
-                    )}
-                    <span className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
-                      {info?.name ?? entry.agentId} · {timeAgo(entry.startedAt)}
-                    </span>
-                  </div>
-                  <div className="line-clamp-2 text-sm text-(--color-paper)">{entry.prompt}</div>
-                </button>
+                  <button type="button" onClick={() => onSelect(entry)} className="block w-full text-left">
+                    <div className="mb-1 flex items-center gap-1.5">
+                      {info && (
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `var(--color-${info.color})` }} />
+                      )}
+                      <span className="font-(family-name:--font-mono) text-[10px] text-(--color-muted)">
+                        {info?.name ?? entry.agentId} · {timeAgo(entry.startedAt)}
+                      </span>
+                    </div>
+                    <div className="line-clamp-2 text-sm text-(--color-paper)">{entry.prompt}</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadMarkdown(`newsroom-${entry.id}`, buildMarkdown(entry.prompt, entry.events, agentsById))}
+                    className="mt-1.5 font-(family-name:--font-mono) text-[10px] text-(--color-muted) hover:text-(--color-amber)"
+                  >
+                    ⬇ export .md
+                  </button>
+                </div>
               )
             })
           )}

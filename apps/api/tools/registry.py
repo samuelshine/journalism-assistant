@@ -7,6 +7,7 @@ import config
 from . import (
     extract_claims,
     fetch_url,
+    fixtures,
     gdelt,
     nominatim,
     openalex,
@@ -17,7 +18,9 @@ from . import (
     wikidata,
     wikipedia,
 )
-from .base import Tool, ToolResult
+from .base import Source, Tool, ToolResult
+
+_NO_FIXTURE_TOOLS = {"extract_claims", "readability_score", "search_memory"}  # local, no network to replace
 
 ALL_TOOLS: dict[str, Tool] = {
     t.name: t
@@ -51,10 +54,26 @@ def schemas_for(names: list[str]) -> list[dict]:
     return [t.schema() for t in available(names)]
 
 
+def _fixture_to_result(fixture: dict) -> ToolResult:
+    return ToolResult(
+        ok=fixture["ok"],
+        summary=fixture["summary"],
+        sources=[Source(**s) for s in fixture.get("sources", [])],
+        data=fixture.get("data"),
+        error=fixture.get("error"),
+    )
+
+
 async def dispatch(name: str, args: dict) -> ToolResult:
     tool = ALL_TOOLS.get(name)
     if tool is None:
         return ToolResult(ok=False, summary=f"Unknown tool '{name}'", error="unknown_tool")
+
+    if config.DEMO_MODE and name not in _NO_FIXTURE_TOOLS:
+        fixture = fixtures.lookup(name, args)
+        if fixture is not None:
+            return _fixture_to_result(fixture)
+
     try:
         return await tool.run(**args)
     except TypeError as e:

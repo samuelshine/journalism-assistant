@@ -23,12 +23,15 @@ from sse_starlette.sse import EventSourceResponse
 import agents
 import config
 import crew
+import hallucination_lab
 import media_pipeline
 import ollama_client
 import orchestrator
+from beats import scheduler as beat_scheduler
 from events import sse_format
 from media.transcribe import is_warm as whisper_is_warm
 from media.transcribe import warm as warm_whisper
+from store import beats as beats_store
 from store import db
 from tools.web_ua import WIKIMEDIA_UA
 
@@ -119,6 +122,7 @@ async def warm_models():
 
     asyncio.create_task(_warm())
     asyncio.create_task(warm_whisper())
+    beat_scheduler.start_scheduler()
 
 
 @app.get("/api/agents")
@@ -186,6 +190,58 @@ class MediaUrlRequest(BaseModel):
 async def media_youtube(req: MediaUrlRequest):
     async def event_stream():
         async for event in media_pipeline.process_url(req.url):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+class HallucinationLabRequest(BaseModel):
+    prompt: str
+
+
+@app.post("/api/hallucination-lab")
+async def run_hallucination_lab(req: HallucinationLabRequest):
+    async def event_stream():
+        async for event in hallucination_lab.run_lab(req.prompt):
+            yield sse_format(event)
+
+    return EventSourceResponse(event_stream())
+
+
+class CreateBeatRequest(BaseModel):
+    topic: str
+    interval_minutes: int = 30
+
+
+@app.post("/api/beats")
+async def create_beat(req: CreateBeatRequest):
+    beat = beats_store.create_beat(req.topic, max(1, req.interval_minutes))
+    return beat
+
+
+@app.get("/api/beats")
+async def list_beats():
+    return [{**b.__dict__, "brief_count": len(beats_store.list_briefs(b.id))} for b in beats_store.list_beats()]
+
+
+@app.delete("/api/beats/{beat_id}")
+async def delete_beat(beat_id: str):
+    beats_store.delete_beat(beat_id)
+    return {"ok": True}
+
+
+@app.get("/api/beats/{beat_id}/briefs")
+async def get_briefs(beat_id: str):
+    return [b.__dict__ for b in beats_store.list_briefs(beat_id)]
+
+
+@app.post("/api/beats/{beat_id}/run-now")
+async def run_beat_now(beat_id: str):
+    if beats_store.get_beat(beat_id) is None:
+        raise HTTPException(404, "Beat not found")
+
+    async def event_stream():
+        async for event in beat_scheduler.run_beat_now(beat_id):
             yield sse_format(event)
 
     return EventSourceResponse(event_stream())

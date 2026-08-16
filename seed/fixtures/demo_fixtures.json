@@ -1,0 +1,661 @@
+{
+  "gdelt_search": [
+    {
+      "match": [
+        "chennai"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Found 1 articles for 'water scarcity chennai'",
+        "sources": [
+          {
+            "title": "Poondi reservoir gets a boost as Andhra doubles Krishna water release",
+            "url": "https://timesofindia.indiatimes.com/city/chennai/poondi-reservoir-gets-a-boost-as-andhra-doubles-krishna-water-release/articleshow/133244905.cms",
+            "snippet": "timesofindia.indiatimes.com \u00b7 India \u00b7 English",
+            "published_at": "20260814T153000Z",
+            "tool": "gdelt_search",
+            "fetched_at": 1786877992.6027179
+          }
+        ],
+        "data": {
+          "count": 1
+        },
+        "error": null
+      }
+    }
+  ],
+  "rss_fetch": [
+    {
+      "match": [],
+      "result": {
+        "ok": true,
+        "summary": "Read 40 headlines from the_hindu, indian_express, scroll, the_wire, livemint",
+        "sources": [
+          {
+            "title": "[the_hindu] Rahul lauds courage of India's youth for standing firm against 'Modi's violent regime'",
+            "url": "https://www.thehindu.com/news/national/rahul-lauds-courage-of-indias-youth-for-standing-firm-against-modis-violent-regime/article71352693.ece",
+            "snippet": "",
+            "published_at": "Sun, 16 Aug 2026 17:38:48 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181
+          },
+          {
+            "title": "[the_hindu] Raut defends Rahul over his remarks against Amit Shah",
+            "url": "https://www.thehindu.com/news/national/raut-defends-rahul-over-his-remarks-against-amit-shah/article71352650.ece",
+            "snippet": "The Lok Sabha secretariat has sought a response from Rahul Gandhi to two separate complaints of \"breach of privilege\" filed by BJP MPs Anurag Thakur and Sanjay Jaiswal for his remarks against Amit Shah during a debate on the anti-paper leak bill",
+            "published_at": "Sun, 16 Aug 2026 17:25:58 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181004
+          },
+          {
+            "title": "[the_hindu] Kerala police are investigating Instagram and YouTube 'educational channels' that offer test-paper clues to lure anxious school students taking Onam mid-term examinations",
+            "url": "https://www.thehindu.com/news/national/kerala/kerala-police-are-investigating-instagram-and-youtube-educational-channels-that-offer-test-paper-clues-to-lure-anxious-school-students-taking-onam-mid-term-examinations/article71352558.ece",
+            "snippet": "An estimated 40 lakh school students  are taking the Onam examinations, which will conclude on August 20. On August 16, the General Education department petitioned State Police Chief to conduct a detailed criminal inquiry into Instagram and YouTube channels that lure students by ",
+            "published_at": "Sun, 16 Aug 2026 17:06:06 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810071
+          },
+          {
+            "title": "[the_hindu] Southern Railway proposes new accessway to link Radha Nagar subway to Chromepet railway station",
+            "url": "https://www.thehindu.com/news/cities/chennai/southern-railway-proposes-new-accessway-to-link-radha-nagar-subway-to-chromepet-railway-station/article71352365.ece",
+            "snippet": "While footpaths are available on both sides across the already constructed and commissioned Radha nagar subway, the railway officials have found that the subway is situated approximately 120 metres away from the platform end and has no direct connection to the railway platforms.",
+            "published_at": "Sun, 16 Aug 2026 17:00:49 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810088
+          },
+          {
+            "title": "[the_hindu] Unsafe access to platforms puts Radha Nagar pedestrians at risk",
+            "url": "https://www.thehindu.com/news/cities/chennai/unsafe-access-to-platforms-puts-radha-nagar-pedestrians-at-risk/article71341813.ece",
+            "snippet": "Lack of a direct walkway from newly opened subway forces commuters, including students, to take risky routes to Chromepet station",
+            "published_at": "Sun, 16 Aug 2026 16:58:07 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181012
+          },
+          {
+            "title": "[the_hindu] Rat in Maharashtra\u2019s Kalyan hub prompts residents to seek FDA intervention",
+            "url": "https://www.thehindu.com/news/national/maharashtra/rat-in-kalyan-hub-prompts-residents-to-seek-fda-intervention/article71352420.ece",
+            "snippet": "The FDA also noted the absence of insect and rodent control measures. Waste management practices were poor. Records of medical examinations and health documentation of food handlers were missing",
+            "published_at": "Sun, 16 Aug 2026 16:28:18 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181015
+          },
+          {
+            "title": "[the_hindu] \u2018Propitious environment needs to be created\u2019: Bangladesh says PM Tarique Rahman will not visit India until Hasina\u2019s extradition",
+            "url": "https://www.thehindu.com/news/national/bangladesh-says-pm-tarique-rahman-will-not-visit-india-until-sheikh-hasinas-extradition/article71352525.ece",
+            "snippet": "Officials from Bangladesh and India have been in contact in recent weeks about the possibility of a visit by the PM, a Foreign Ministry official said, stating that the process has been \u201cvitiated by Sheikh Hasina's open media interactions\u201d",
+            "published_at": "Sun, 16 Aug 2026 16:19:03 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810172
+          },
+          {
+            "title": "[the_hindu] Bangladesh urges India to expedite Sheikh Hasina\u2019s extradition",
+            "url": "https://www.thehindu.com/news/national/amidst-tension-in-india-bangladesh-relations-high-commissioner-dinesh-trivedi-calls-on-pm-tarique-rahman/article71327338.ece",
+            "snippet": "Indian High Commissioner Dinesh Trivedi calls on Prime Minister Tarique Rahman; \u201csomewhat reassured\u201d after meeting, says Bangladesh; exchanged views on \u201cmatters of mutual interest\u201d, says India",
+            "published_at": "Sun, 16 Aug 2026 16:17:56 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.18102
+          },
+          {
+            "title": "[the_hindu] Bombay HC rules community health volunteers entitled to minimum wage",
+            "url": "https://www.thehindu.com/news/national/maharashtra/bombay-hc-rules-community-health-volunteers-entitled-to-minimum-wage/article71352288.ece",
+            "snippet": "The order had ruled that these volunteers are entitled to the notified minimum wage and directed the corporation to pay the difference between the existing honorarium and the statutory minimum wage",
+            "published_at": "Sun, 16 Aug 2026 16:08:21 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181023
+          },
+          {
+            "title": "[the_hindu] Fire at furniture godown near Plamoodu in Kerala\u2019s Thiruvananthapuram",
+            "url": "https://www.thehindu.com/news/national/kerala/fire-at-furniture-godown-near-plamoodu-in-keralas-thiruvananthapuram/article71352340.ece",
+            "snippet": "Four fire engine units were deployed to put out the fire that broke out at the godown located along the Pattom-Marappalam road",
+            "published_at": "Sun, 16 Aug 2026 16:04:09 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181025
+          },
+          {
+            "title": "[the_hindu] Union government following anti farmers policies, says Minister",
+            "url": "https://www.thehindu.com/news/national/karnataka/union-government-following-anti-farmers-policies-says-minister/article71352237.ece",
+            "snippet": "\"Farmers are facing a serious crisis. The state is facing a severe drought. Farmers have sown two or three times, but lost money and inputs. In such a situation, cooperative societies are supporting  farmers'', M. B. Patil, said.",
+            "published_at": "Sun, 16 Aug 2026 15:52:33 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810281
+          },
+          {
+            "title": "[the_hindu] 'Congress policy to oppose anything patriotic': BJP on Vande Mataram 'insult'",
+            "url": "https://www.thehindu.com/news/national/congress-policy-to-oppose-anything-patriotic-bjp-on-vande-mataram-insult/article71352428.ece",
+            "snippet": "The ruling party demanded that the Congress publicly apologise within 24 hours for the \"insult\" to the national song",
+            "published_at": "Sun, 16 Aug 2026 15:50:04 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810298
+          },
+          {
+            "title": "[the_hindu] BJP says Sonia Gandhi opposed singing of full Vande Mataram, demands apology; Congress rejects charge",
+            "url": "https://www.thehindu.com/news/national/bjp-claims-sonia-objected-to-full-version-of-vande-mataram-at-event-congress-denies-charge/article71349117.ece",
+            "snippet": "The controversy assumes significance against the backdrop of guidelines issued by the Home Ministry in February, and reiterated in July, on the observance of the national song, and the subsequent passage of the Prevention of Insults to National Honour (Amendment) Act, 2026",
+            "published_at": "Sun, 16 Aug 2026 15:45:48 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181033
+          },
+          {
+            "title": "[the_hindu] Congress should apologise for insulting Vande Mataram on Independence Day: Amit Shah",
+            "url": "https://www.thehindu.com/news/national/congress-should-apologise-for-insulting-vande-mataram-on-independence-day-amit-shah/article71352403.ece",
+            "snippet": "Home Minister Amit Shah alleged that during the Independence Day programme at the Congress headquarters, Sonia Gandhi asked Vande Mataram to be stopped midway through the song",
+            "published_at": "Sun, 16 Aug 2026 15:35:43 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181036
+          },
+          {
+            "title": "[the_hindu] Pune court remands 'drug kingpin' Virender Singh Basoya to NCB custody till August 21",
+            "url": "https://www.thehindu.com/news/national/maharashtra/pune-court-remands-drug-kingpin-virender-singh-basoya-to-ncb-custody-till-august-21/article71352406.ece",
+            "snippet": "The prosecution told the court that the accused stayed abroad for a long time. His name has surfaced in several drug-related cases and there is a possibility that he is a key figure in a major drug trafficking racket.",
+            "published_at": "Sun, 16 Aug 2026 15:34:38 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810381
+          },
+          {
+            "title": "[the_hindu] Srisailam temple tableau wins second prize in ID celebrations",
+            "url": "https://www.thehindu.com/news/national/andhra-pradesh/srisailam-temple-tableau-wins-second-prize-in-id-celebrations/article71352205.ece",
+            "snippet": "The tableau showed the facilities for devotees, ticketing for darshan and sevas through \u2018Mana Mitra\u2019, and the temple\u2019s outreach programmes in Chenchu settlements",
+            "published_at": "Sun, 16 Aug 2026 15:29:15 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181045
+          },
+          {
+            "title": "[the_hindu] Man dies after being allegedly punched by son-in-law over online gaming in Chittoor",
+            "url": "https://www.thehindu.com/news/national/andhra-pradesh/man-dies-after-being-allegedly-punched-by-son-in-law-over-online-gaming-in-chittoor/article71352217.ece",
+            "snippet": "The police said Subramanyam had reprimanded his son-in-law for spending excessive time on online games; the man allegedly fled after the assault and a search is on",
+            "published_at": "Sun, 16 Aug 2026 15:23:09 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810482
+          },
+          {
+            "title": "[the_hindu] Telangana\u2019s electric conversion scheme for autos takes shape",
+            "url": "https://www.thehindu.com/news/national/telangana/telanganas-electric-conversion-scheme-for-autos-takes-shape/article71352162.ece",
+            "snippet": "The scheme seeks to provide financial assistance of up to \u20b91.50 lakh, either retrofitting their existing autos, or purchasing new electric ones; those who wish to retrofit their autorickshaws can do so by converting their vehicles using an AIS-123-approved electric kit installed ",
+            "published_at": "Sun, 16 Aug 2026 15:17:34 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810508
+          },
+          {
+            "title": "[the_hindu] Tamil Nadu CM Vijay condoles death of police constable on I-Day, announces \u20b930 lakh relief",
+            "url": "https://www.thehindu.com/news/national/tamil-nadu/tamil-nadu-cm-vijay-condoles-death-of-police-constable-on-i-day-announces-30-lakh-relief/article71352248.ece",
+            "snippet": "A. Dharmaraj was a Grade-I police constable attached to the Drums Bagpiper band of the Tamil Nadu Special Police Training Centre in Avadi, who fainted while on parade duty",
+            "published_at": "Sun, 16 Aug 2026 15:10:59 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181053
+          },
+          {
+            "title": "[the_hindu] Navy sailor, three family members found dead in Mumbai\u2019s Colaba quarters; probe on",
+            "url": "https://www.thehindu.com/news/cities/mumbai/navy-sailor-wife-and-two-children-found-dead-at-south-mumbai-home-probe-on/article71352396.ece",
+            "snippet": "The authorities have stated that the identities of the deceased and the circumstances leading to the event will be determined after the postmortem examination and the receipt of forensic reports",
+            "published_at": "Sun, 16 Aug 2026 15:08:51 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181057
+          },
+          {
+            "title": "[the_hindu] We want people of Tamil Nadu to develop zero tolerance for corruption: CM Vijay",
+            "url": "https://www.thehindu.com/news/national/tamil-nadu/we-want-people-of-tamil-nadu-to-develop-zero-tolerance-for-corruption-cm-vijay/article71348864.ece",
+            "snippet": "Delivering his I-Day address after hoisting the national flag at the ramparts of Fort St. George, CM Vijay thanked the people for breaking away from \u201ccaste and religious considerations\u201d and rejecting \u201cmoney and muscle power\u201d",
+            "published_at": "Sun, 16 Aug 2026 15:03:44 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810591
+          },
+          {
+            "title": "[the_hindu] Telangana brings food safety, drugs control under administrative roof of \u2018TG SAFE\u2019",
+            "url": "https://www.thehindu.com/news/national/telangana/telangana-brings-food-safety-drugs-control-under-administrative-roof-of-tg-safe/article71352321.ece",
+            "snippet": "The government has appointed 2005-batch IPS officer Avinash Mohanty, who was serving as Director General of the DCA, as Commissioner of TG SAFE, in addition to his existing duties.",
+            "published_at": "Sun, 16 Aug 2026 15:02:15 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181062
+          },
+          {
+            "title": "[the_hindu] \u2018Kudankulam Nuclear Power Plant has generated 130.63 billion units of power\u2019",
+            "url": "https://www.thehindu.com/news/cities/Madurai/kudankulam-nuclear-power-plant-has-generated-over-130-million-units-of-power/article71349829.ece",
+            "snippet": "Reactors 1 and 2 of the nuclear power plant have prevented 11.22 crore tonnes of carbon dioxide emissions; both reactors are operated at capacity factors exceeding 101.5%, says Site Director",
+            "published_at": "Sun, 16 Aug 2026 14:51:21 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810648
+          },
+          {
+            "title": "[the_hindu] B.Tech student from Arunachal found dead in Kerala; Minister promises probe as students blame credits-based \u2018year back\u2019 system",
+            "url": "https://www.thehindu.com/news/national/kerala/btech-student-from-arunachal-found-dead-in-kerala-minister-promises-probe-as-students-blame-credits-based-year-back-system/article71352107.ece",
+            "snippet": "State Higher Education Minister said around 20 students of the college were facing difficulties following the Kerala Technology University\u2019s recent decision to allow only students who score 22 credits in Semester 4 to proceed to the next semester",
+            "published_at": "Sun, 16 Aug 2026 14:27:36 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181068
+          },
+          {
+            "title": "[the_hindu] \u2018ONGC can create a reliable gas supply eco system in Tamil Nadu\u2019",
+            "url": "https://www.thehindu.com/news/cities/Tiruchirapalli/ongc-can-create-a-reliable-gas-supply-eco-system-in-tamil-nadu/article71349477.ece",
+            "snippet": "",
+            "published_at": "Sun, 16 Aug 2026 14:21:37 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181071
+          },
+          {
+            "title": "[the_hindu] Bankim Chandra's descendant seeks Sonia Gandhi's apology over 'Vande Mataram' row",
+            "url": "https://www.thehindu.com/news/cities/kolkata/bankim-chandras-descendant-seeks-sonia-gandhis-apology-over-vande-mataram-row/article71352298.ece",
+            "snippet": "Sumitro Chatterjee warned that \"history forgives no one\" and that any leadership which fails to respect its own mantra of freedom would be pushed by history into \"the darkness of oblivion\".",
+            "published_at": "Sun, 16 Aug 2026 14:08:23 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181074
+          },
+          {
+            "title": "[the_hindu] ONGC gets U.S. licence to resume full Venezuela operations, eyes operatorship",
+            "url": "https://www.thehindu.com/news/national/ongc-gets-us-licence-to-resume-full-venezuela-operations-eyes-operatorship/article71352290.ece",
+            "snippet": "The U.S. approval removes a key hurdle for ONGC's Venezuelan investments and could pave the way for the state-run explorer to expand production",
+            "published_at": "Sun, 16 Aug 2026 14:06:04 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181077
+          },
+          {
+            "title": "[the_hindu] 1,082 beds, 300 ICU beds, 15 major OTs: MCR TIMS Sanathnagar in Hyderabad set to transform Telangana\u2019s public healthcare",
+            "url": "https://www.thehindu.com/news/cities/Hyderabad/1082-beds-300-icu-beds-15-major-ots-mcr-tims-sanathnagar-in-hyderabad-set-to-transform-telanganas-public-healthcare/article71352128.ece",
+            "snippet": "",
+            "published_at": "Sun, 16 Aug 2026 13:54:58 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.18108
+          },
+          {
+            "title": "[the_hindu] Rahul Gandhi\u2019s disproportionate assets case: Supreme Court to hear plea against HC on August 17",
+            "url": "https://www.thehindu.com/news/national/rahul-gandhis-disproportionate-assets-case-supreme-court-to-hear-plea-against-hc-on-august-17/article71352256.ece",
+            "snippet": "As per the Apex Court's cause list of August 17, a bench comprising Chief Justice Surya Kant and Justices Joymalya Bagchi and V. Mohana will hear the matter",
+            "published_at": "Sun, 16 Aug 2026 13:51:12 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181083
+          },
+          {
+            "title": "[the_hindu] UGC-NET 2026: NTA releases provisional answer keys for 84 subjects",
+            "url": "https://www.thehindu.com/education/ugc-net-2026-nta-releases-provisional-answer-keys-for-84-subjects/article71352254.ece",
+            "snippet": "The challenge window is open till August 18; \u20b9200 processing fee per question challenged",
+            "published_at": "Sun, 16 Aug 2026 13:44:02 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810849
+          },
+          {
+            "title": "[the_hindu] Warangal DMO K. Surekha dies in road accident",
+            "url": "https://www.thehindu.com/news/national/telangana/warangal-dmo-k-surekha-dies-in-road-accident/article71351963.ece",
+            "snippet": "A lorry collided with the car in which the 43-year-old District Marketing Officer was present",
+            "published_at": "Sun, 16 Aug 2026 13:41:00 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181087
+          },
+          {
+            "title": "[the_hindu] Jharkhand job exam stir: protesters announce CM residence gherao on August 20 to seek Hemant Soren\u2019s resignation",
+            "url": "https://www.thehindu.com/news/national/jharkhand/jharkhand-students-demand-congress-to-withdraw-support-from-jmm-coalition-cm-sorens-resignation/article71350761.ece",
+            "snippet": "The students accuse JMM-Congress of playing politics; ask Congress to withdraw support from JMM-led coalition",
+            "published_at": "Sun, 16 Aug 2026 13:39:38 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.18109
+          },
+          {
+            "title": "[the_hindu] Soren promises \u2018systemic change\u2019 amid ongoing student protest in Jharkhand",
+            "url": "https://www.thehindu.com/news/national/jharkhand/soren-promises-systemic-change-amid-ongoing-student-protest-in-jharkhand/article71349382.ece",
+            "snippet": "Addressing a gathering in Ranchi on Independence Day, the Chief Minister assured students that their hard work would not be left at the mercy of any mafia",
+            "published_at": "Sun, 16 Aug 2026 13:38:54 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810932
+          },
+          {
+            "title": "[the_hindu] SIT fast-tracks GST evasion probe into Messi, Argentina team\u2019s 2025 Kerala visit",
+            "url": "https://www.thehindu.com/news/national/kerala/sit-fast-tracks-probe-into-suspected-gst-evasion-on-foreign-remittances-for-hosting-messi-and-argentine-team-in-2025/article71352230.ece",
+            "snippet": "Officials said the investigation will likely lay the legal groundwork for a sweeping anti-corruption enquiry into the high-profile plan that turned into a fiasco amid a storm of hype, despite the previous Left Democratic Front (LDF) government\u2019s active backing",
+            "published_at": "Sun, 16 Aug 2026 13:23:14 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.1810958
+          },
+          {
+            "title": "[the_hindu] Independence Day 2026 | Jagat Murari and FTII: Where India\u2019s filmmaking rebels were made",
+            "url": "https://www.thehindu.com/society/india-independence-day-2026-jagat-murari-ftii-rebels/article71336472.ece",
+            "snippet": "On India\u2019s 80th Independence Day, the enduring legacy of Jagat Murari, FTII\u2019s former head, asks if public institutions can still nurture independent thinkers",
+            "published_at": "Sun, 16 Aug 2026 13:13:56 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181098
+          },
+          {
+            "title": "[the_hindu] CM Satheesan proposes to elevate Thripunithura as a heritage town at Athachamayam event",
+            "url": "https://www.thehindu.com/news/national/kerala/cm-satheesan-proposes-to-elevate-thripunithura-as-a-heritage-town-at-athachamayam-event/article71352201.ece",
+            "snippet": "Chief Minister V.D. Satheesan called upon the elected representatives from the region to come together beyond political lines and get a proper proposal made with the help of experts to elevate the stature of Thripunithura to a heritage town.",
+            "published_at": "Sun, 16 Aug 2026 13:11:47 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181101
+          },
+          {
+            "title": "[the_hindu] What do the latest White House allegations mean for India? | Explained",
+            "url": "https://www.thehindu.com/business/what-do-the-latest-white-house-allegations-mean-for-india-explained/article71352187.ece",
+            "snippet": "White House has identified more than 40 countries associated with \u201celevated illegal transshipment risk\u201d, with India among the top \u201cenablers\u201d of China\u2019s evasion of tariffs; the other countries named as the top enablers are Mexico, Canada, the European Union, Japan, and South Korea",
+            "published_at": "Sun, 16 Aug 2026 13:09:40 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181103
+          },
+          {
+            "title": "[the_hindu] Rejuvenation of irrigation channels, ponds to begin in Tamil Nadu under VB-G RAM G scheme",
+            "url": "https://www.thehindu.com/news/national/tamil-nadu/rejuvenation-of-irrigation-channels-ponds-to-begin-in-tamil-nadu-under-vb-g-ram-g-scheme/article71352224.ece",
+            "snippet": "According to sources, desilting of water bodies and irrigation channels ahead of the northeast monsoon will help store rainwater to its capacity, raise the groundwater table and improve irrigation facilities for agriculture",
+            "published_at": "Sun, 16 Aug 2026 13:09:34 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181107
+          },
+          {
+            "title": "[the_hindu] New Agasthyamalai eviction orders continue to silence Forest Rights Act",
+            "url": "https://www.thehindu.com/sci-tech/energy-and-environment/new-agasthyamalai-eviction-orders-continue-to-silence-forest-rights-act/article71308563.ece",
+            "snippet": "The FRA does not require that traditional forest-dwellers have to have occupied the land they are claiming for three generations before 2005 nor does it prohibit commercial activities on all forest lands \u2013 yet the administration and the judiciary have hampered its implementation ",
+            "published_at": "Sun, 16 Aug 2026 13:01:16 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.18111
+          },
+          {
+            "title": "[the_hindu] Two injured after Air India Express passenger\u2019s gun goes off at Varanasi airport",
+            "url": "https://www.thehindu.com/news/national/uttar-pradesh/injured-after-air-india-express-passengers-gun-goes-off-at-varanasi-airport/article71352195.ece",
+            "snippet": "During the weapons check, the passenger fired a round, injuring two AAAI Cargo Logistics and Allied Services Company Limited (AAICLAS) screeners, read a statement by Varanasi Airport Authority",
+            "published_at": "Sun, 16 Aug 2026 12:52:41 +0530",
+            "tool": "rss_fetch",
+            "fetched_at": 1786882595.181113
+          }
+        ],
+        "data": {
+          "count": 40
+        },
+        "error": null
+      }
+    }
+  ],
+  "wikipedia_summary": [
+    {
+      "match": [
+        "chennai"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Chennai, also known as Madras, is the capital and largest city of Tamil Nadu, the southernmost state of India. It is located on the Coromandel Coast of the Bay of Bengal. As per the 2011 Indian census, Chennai is the sixth-most-populous city in India and forms the fourth-most-populous urban agglomeration. The city is coterminous with Chennai district, which together with the adjoining suburbs constitutes the Chennai Metropolitan Area, one of the largest metropolitan areas of India. It is administered by the Greater Chennai Corporation, which was incorporated in 1688, and is the second oldest m",
+        "sources": [
+          {
+            "title": "Chennai",
+            "url": "https://en.wikipedia.org/wiki/Chennai",
+            "snippet": "Chennai, also known as Madras, is the capital and largest city of Tamil Nadu, the southernmost state of India. It is located on the Coromandel Coast of the Bay of Bengal. As per the 2011 Indian census, Chennai is the sixth-most-populous city in India and forms the fourth-most-populous urban agglomeration. The city is coterminous with Chennai district, which together with the adjoining suburbs cons",
+            "published_at": null,
+            "tool": "wikipedia_summary",
+            "fetched_at": 1786882576.231744
+          }
+        ],
+        "data": {
+          "extract": "Chennai, also known as Madras, is the capital and largest city of Tamil Nadu, the southernmost state of India. It is located on the Coromandel Coast of the Bay of Bengal. As per the 2011 Indian census, Chennai is the sixth-most-populous city in India and forms the fourth-most-populous urban agglomeration. The city is coterminous with Chennai district, which together with the adjoining suburbs constitutes the Chennai Metropolitan Area, one of the largest metropolitan areas of India. It is administered by the Greater Chennai Corporation, which was incorporated in 1688, and is the second oldest municipal corporation in the world after the City of London Corporation. Being the capital of the state, it houses major government institutions including the Tamil Nadu Legislative Assembly, and the Madras High Court."
+        },
+        "error": null
+      }
+    },
+    {
+      "match": [
+        "tamil"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Tamil Nadu is the southernmost state of India. The tenth largest Indian state by area and the sixth largest by population, it is the home of the Tamils, who speak the Tamil language, the state's official language and the first to be recognised as a classical language in India. Chennai is the state's largest city and capital.",
+        "sources": [
+          {
+            "title": "Tamil Nadu",
+            "url": "https://en.wikipedia.org/wiki/Tamil_Nadu",
+            "snippet": "Tamil Nadu is the southernmost state of India. The tenth largest Indian state by area and the sixth largest by population, it is the home of the Tamils, who speak the Tamil language, the state's official language and the first to be recognised as a classical language in India. Chennai is the state's largest city and capital.",
+            "published_at": null,
+            "tool": "wikipedia_summary",
+            "fetched_at": 1786882577.6174989
+          }
+        ],
+        "data": {
+          "extract": "Tamil Nadu is the southernmost state of India. The tenth largest Indian state by area and the sixth largest by population, it is the home of the Tamils, who speak the Tamil language, the state's official language and the first to be recognised as a classical language in India. Chennai is the state's largest city and capital."
+        },
+        "error": null
+      }
+    }
+  ],
+  "wikidata_entity": [
+    {
+      "match": [
+        "chennai"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Chennai \u2014 city and state capital of Tamil Nadu, India (instance of: 4 statement(s) on record; country: 4 statement(s) on record; inception: recorded; population: 5 statement(s) on record)",
+        "sources": [
+          {
+            "title": "Chennai (Wikidata)",
+            "url": "https://www.wikidata.org/wiki/Q1352",
+            "snippet": "Chennai \u2014 city and state capital of Tamil Nadu, India (instance of: 4 statement(s) on record; country: 4 statement(s) on record; inception: recorded; population: 5 statement(s) on record)",
+            "published_at": null,
+            "tool": "wikidata_entity",
+            "fetched_at": 1786882580.263526
+          }
+        ],
+        "data": {
+          "qid": "Q1352",
+          "facts": [
+            "instance of: 4 statement(s) on record",
+            "country: 4 statement(s) on record",
+            "inception: recorded",
+            "population: 5 statement(s) on record"
+          ]
+        },
+        "error": null
+      }
+    },
+    {
+      "match": [
+        "tamil"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Tamil Nadu \u2014 state of India (instance of: recorded; country: recorded; inception: recorded; population: recorded)",
+        "sources": [
+          {
+            "title": "Tamil Nadu (Wikidata)",
+            "url": "https://www.wikidata.org/wiki/Q1445",
+            "snippet": "Tamil Nadu \u2014 state of India (instance of: recorded; country: recorded; inception: recorded; population: recorded)",
+            "published_at": null,
+            "tool": "wikidata_entity",
+            "fetched_at": 1786882582.991623
+          }
+        ],
+        "data": {
+          "qid": "Q1445",
+          "facts": [
+            "instance of: recorded",
+            "country: recorded",
+            "inception: recorded",
+            "population: recorded"
+          ]
+        },
+        "error": null
+      }
+    }
+  ],
+  "nominatim_geocode": [
+    {
+      "match": [
+        "chennai"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Chennai Corporation, Chennai, Tamil Nadu, India \u2014 13.0836939, 80.2701860",
+        "sources": [
+          {
+            "title": "Chennai Corporation, Chennai, Tamil Nadu, India",
+            "url": "https://www.openstreetmap.org/relation/1766358",
+            "snippet": "lat 13.0836939, lon 80.2701860",
+            "published_at": null,
+            "tool": "nominatim_geocode",
+            "fetched_at": 1786882584.526201
+          }
+        ],
+        "data": {
+          "lat": "13.0836939",
+          "lon": "80.2701860",
+          "display_name": "Chennai Corporation, Chennai, Tamil Nadu, India"
+        },
+        "error": null
+      }
+    }
+  ],
+  "wayback_snapshot": [
+    {
+      "match": [
+        "poondi"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Archived snapshot from 20260815054103: http://web.archive.org/web/20260815054103/https://timesofindia.indiatimes.com/city/chennai/poondi-reservoir-gets-a-boost-as-andhra-doubles-krishna-water-release/articleshow/133244905.cms",
+        "sources": [
+          {
+            "title": "Archived snapshot (20260815054103)",
+            "url": "http://web.archive.org/web/20260815054103/https://timesofindia.indiatimes.com/city/chennai/poondi-reservoir-gets-a-boost-as-andhra-doubles-krishna-water-release/articleshow/133244905.cms",
+            "snippet": "Wayback Machine snapshot",
+            "published_at": null,
+            "tool": "wayback_snapshot",
+            "fetched_at": 1786882700.0
+          }
+        ],
+        "data": {
+          "found": true,
+          "timestamp": "20260815054103"
+        },
+        "error": null
+      }
+    }
+  ],
+  "openalex_search": [
+    {
+      "match": [
+        "chennai"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Found 5 academic works for 'water scarcity Chennai'",
+        "sources": [
+          {
+            "title": "Global water resources and the role of groundwater in a resilient water future (2023)",
+            "url": "https://research.wur.nl/en/publications/global-water-resources-and-the-role-of-groundwater-in-a-resilient",
+            "snippet": "Nature Reviews Earth & Environment",
+            "published_at": "2023",
+            "tool": "openalex_search",
+            "fetched_at": 1786882589.598335
+          },
+          {
+            "title": "Water 'Scarcity' in Chennai, India Institutions, Entitlements and Aspects of Inequality in Access (2001)",
+            "url": "http://hdl.handle.net/10419/53004",
+            "snippet": "RePEc: Research Papers in Economics",
+            "published_at": "2001",
+            "tool": "openalex_search",
+            "fetched_at": 1786882589.59834
+          },
+          {
+            "title": "Hydro-geochemistry and application of water quality index (WQI) for groundwater quality assessment, Anna Nagar, part of Chennai City, Tamil Nadu, India (2014)",
+            "url": "https://link.springer.com/content/pdf/10.1007/s13201-014-0196-4.pdf",
+            "snippet": "Applied Water Science",
+            "published_at": "2014",
+            "tool": "openalex_search",
+            "fetched_at": 1786882589.598342
+          },
+          {
+            "title": "Water depletion: An improved metric for incorporating seasonal and dry-year water scarcity into water risk assessments (2016)",
+            "url": "https://online.ucpress.edu/elementa/article-pdf/doi/10.12952/journal.elementa.000083/474270/7-63-1-ce.pdf",
+            "snippet": "Elementa Science of the Anthropocene",
+            "published_at": "2016",
+            "tool": "openalex_search",
+            "fetched_at": 1786882589.5983438
+          },
+          {
+            "title": "Various Natural and Anthropogenic Factors Responsible for Water Quality Degradation: A Review (2021)",
+            "url": "https://www.mdpi.com/2073-4441/13/19/2660/pdf?version=1632728325",
+            "snippet": "Water",
+            "published_at": "2021",
+            "tool": "openalex_search",
+            "fetched_at": 1786882589.598345
+          }
+        ],
+        "data": {
+          "count": 5
+        },
+        "error": null
+      }
+    },
+    {
+      "match": [
+        "tamil"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Found 5 academic works for 'water management Tamil Nadu'",
+        "sources": [
+          {
+            "title": "Delineation of groundwater potential zones in Theni district, Tamil Nadu, using remote sensing, GIS and MIF techniques (2012)",
+            "url": "https://www.sciencedirect.com/science/article/pii/S1674987111001137/pdf",
+            "snippet": "Geoscience Frontiers",
+            "published_at": "2012",
+            "tool": "openalex_search",
+            "fetched_at": 1786882592.393845
+          },
+          {
+            "title": "Ethnobotanical investigations among tribes in Madurai District of Tamil Nadu (India) (2006)",
+            "url": "https://ethnobiomed.biomedcentral.com/counter/pdf/10.1186/1746-4269-2-25",
+            "snippet": "Journal of Ethnobiology and Ethnomedicine",
+            "published_at": "2006",
+            "tool": "openalex_search",
+            "fetched_at": 1786882592.3938491
+          },
+          {
+            "title": "Identification of potential groundwater recharge zones in Vaigai upper basin, Tamil Nadu, using GIS-based analytical hierarchical process (AHP) technique (2013)",
+            "url": "https://openalex.org/W1990694652",
+            "snippet": "Arabian Journal of Geosciences",
+            "published_at": "2013",
+            "tool": "openalex_search",
+            "fetched_at": 1786882592.393852
+          },
+          {
+            "title": "Hydro-geochemistry and application of water quality index (WQI) for groundwater quality assessment, Anna Nagar, part of Chennai City, Tamil Nadu, India (2014)",
+            "url": "https://link.springer.com/content/pdf/10.1007/s13201-014-0196-4.pdf",
+            "snippet": "Applied Water Science",
+            "published_at": "2014",
+            "tool": "openalex_search",
+            "fetched_at": 1786882592.393854
+          },
+          {
+            "title": "Impact of leachate on groundwater pollution due to non-engineered municipal solid waste landfill sites of erode city, Tamil Nadu, India (2012)",
+            "url": "https://link.springer.com/content/pdf/10.1186/1735-2746-9-35.pdf",
+            "snippet": "Journal of Environmental Health Science and Engineering",
+            "published_at": "2012",
+            "tool": "openalex_search",
+            "fetched_at": 1786882592.393855
+          }
+        ],
+        "data": {
+          "count": 5
+        },
+        "error": null
+      }
+    }
+  ],
+  "fetch_url": [
+    {
+      "match": [
+        "poondi"
+      ],
+      "result": {
+        "ok": true,
+        "summary": "Chennai: Andhra Pradesh\n has doubled its release of Krishna river water to Chennai to 450 cusecs despite holding relatively low reserves \u2014 14tmcft, about a fifth of its 68.03tmcft capacity \u2014 giving the city a chance to boost its reservoirs before the northeast monsoon arrives, said a senior official with water resources department.\nThe department expects to receive at least 2tmcft of Krishna water by the end of this month, well above what the city received during this period in past years. \u201cThis is the first time AP has released water despite having such low storage. If the requirement arises in the city, they can increase the outflow to 500 cusecs based on our request,\u201d said the official.\nAP began releasing water from Kandaleru dam on Feb 25, which reached Poondi reservoir on March 4. The discharge was suspended on March 29 for maintenance work at water bodies in Andhra Pradesh, then resumed on May 15 at rate of 180-200 cusecs, which held steady until July 10. \n\u201cUsually, they discharge around 2tmcft during the summer season in a spell between July and Oct,\u201d he said. \u201cHowever, we are expecting more than 2tmcft of Krishna water by the end of this month.\u201d\nWater managers say this increase will help city and adjoining districts avoid drinking water scarcity in the summer. The city needs about 1tmcft of water each month. The increased discharge from Kandaleru dam could help increase storage to 7tmcft before the onset of northeast monsoon in Chennai\u2019s reservoirs, officials said.",
+        "sources": [
+          {
+            "title": "Poondi reservoir gets a boost as Andhra doubles Krishna water release",
+            "url": "https://timesofindia.indiatimes.com/city/chennai/poondi-reservoir-gets-a-boost-as-andhra-doubles-krishna-water-release/articleshow/133244905.cms",
+            "snippet": "Chennai: Andhra Pradesh\n has doubled its release of Krishna river water to Chennai to 450 cusecs despite holding relatively low reserves \u2014 14tmcft, about a fifth of its 68.03tmcft capacity \u2014 giving the city a chance to boost its reservoirs before the northeast monsoon arrives, said a senior official with water resources department.\nThe department expects to receive at least 2tmcft of Krishna water",
+            "published_at": "2026-08-14",
+            "tool": "fetch_url",
+            "fetched_at": 1786882596.801537
+          }
+        ],
+        "data": {
+          "full_length": 1497,
+          "truncated": false
+        },
+        "error": null
+      }
+    }
+  ]
+}

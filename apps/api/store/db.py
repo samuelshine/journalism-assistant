@@ -38,6 +38,22 @@ CREATE TABLE IF NOT EXISTS memory (
     text TEXT NOT NULL,
     created_at REAL NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS beats (
+    id TEXT PRIMARY KEY,
+    topic TEXT NOT NULL,
+    interval_minutes INTEGER NOT NULL,
+    created_at REAL NOT NULL,
+    last_run_at REAL
+);
+
+CREATE TABLE IF NOT EXISTS briefs (
+    id TEXT PRIMARY KEY,
+    beat_id TEXT NOT NULL REFERENCES beats(id),
+    created_at REAL NOT NULL,
+    text TEXT NOT NULL,
+    sources TEXT NOT NULL
+);
 """
 
 

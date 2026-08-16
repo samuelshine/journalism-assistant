@@ -1,18 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import StatusStrip from './components/StatusStrip'
 import { streamCrew, streamRun } from './lib/sse'
+import BeatInbox from './panes/BeatInbox'
 import Composer from './panes/Composer'
 import EvidenceDrawer from './panes/EvidenceDrawer'
+import HallucinationLab from './panes/HallucinationLab'
 import StoryDesk from './panes/StoryDesk'
 import Studio from './panes/Studio'
 import TracePane from './panes/TracePane'
 import type { AgentEvent, AgentInfo, SourceRef } from './types/events'
 import type { RunHistoryEntry } from './types/history'
 
-type Tab = 'desk' | 'studio'
+type Tab = 'desk' | 'studio' | 'lab' | 'beats'
+
+const TAB_LABEL: Record<Tab, string> = {
+  desk: 'desk',
+  studio: '🎙 studio',
+  lab: '🧪 lab',
+  beats: '📡 beats',
+}
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('desk')
+  const [presenter, setPresenter] = useState(false)
   const [agentsList, setAgentsList] = useState<AgentInfo[]>([])
   const [selectedAgentId, setSelectedAgentId] = useState('researcher')
   const [events, setEvents] = useState<AgentEvent[]>([])
@@ -122,7 +132,7 @@ export default function App() {
   const knownIndices = new Set(sources.keys())
 
   return (
-    <div className="flex h-screen flex-col bg-(--color-ink) text-(--color-paper)">
+    <div data-presenter={presenter} className="flex h-screen flex-col bg-(--color-ink) text-(--color-paper)">
       <header className="flex items-center justify-between border-b border-(--color-border) px-6 py-3 md:px-10">
         <div className="flex items-baseline gap-4">
           <div className="flex items-baseline gap-3">
@@ -132,21 +142,29 @@ export default function App() {
             </span>
           </div>
           <nav className="flex gap-1">
-            {(['desk', 'studio'] as const).map((t) => (
+            {(Object.keys(TAB_LABEL) as Tab[]).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
-                className={`rounded px-2.5 py-1 font-(family-name:--font-mono) text-xs capitalize transition-colors ${
+                className={`rounded px-2.5 py-1 font-(family-name:--font-mono) text-xs transition-colors ${
                   tab === t ? 'bg-(--color-surface-raised) text-(--color-paper)' : 'text-(--color-muted) hover:text-(--color-paper)'
                 }`}
               >
-                {t === 'studio' ? '🎙 studio' : t}
+                {TAB_LABEL[t]}
               </button>
             ))}
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setPresenter((v) => !v)}
+            title="Presenter mode — larger type for projecting"
+            className={`font-(family-name:--font-mono) text-[11px] ${presenter ? 'text-(--color-amber)' : 'text-(--color-muted) hover:text-(--color-paper)'}`}
+          >
+            🔍 presenter
+          </button>
           <button
             type="button"
             onClick={() => setDeskOpen(true)}
@@ -158,7 +176,7 @@ export default function App() {
         </div>
       </header>
 
-      {tab === 'desk' ? (
+      {tab === 'desk' && (
         <>
           <Composer
             agentsList={agentsList}
@@ -179,9 +197,20 @@ export default function App() {
             <EvidenceDrawer sources={Array.from(sources.values())} highlightedIndex={highlighted} />
           </div>
         </>
-      ) : (
+      )}
+      {tab === 'studio' && (
         <div className="min-h-0 flex-1">
           <Studio onSendToAgent={handleSendToAgent} />
+        </div>
+      )}
+      {tab === 'lab' && (
+        <div className="min-h-0 flex-1">
+          <HallucinationLab />
+        </div>
+      )}
+      {tab === 'beats' && (
+        <div className="min-h-0 flex-1">
+          <BeatInbox />
         </div>
       )}
 

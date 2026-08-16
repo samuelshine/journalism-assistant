@@ -74,12 +74,15 @@ export default function TraceStep({ event, agentsById }: Props) {
 
     case 'tool_call':
       return (
-        <div className="flex items-start gap-2 py-1 font-(family-name:--font-mono) text-xs">
+        <div className="flex items-start gap-2 py-1 font-(family-name:--font-mono) text-xs" title={event.cost_hint ?? undefined}>
           {time}
           <AgentDot agentId={event.agent} agentsById={agentsById} />
           <span>
             <span className="text-(--color-amber)">🔧 {event.tool}</span>
             <span className="text-(--color-muted)">({formatArgs(event.args)})</span>
+            {event.cost_hint?.startsWith('🎬') && (
+              <span className="ml-1.5 rounded bg-(--color-surface-raised) px-1 text-[10px] text-(--color-ok)">demo fixture</span>
+            )}
           </span>
         </div>
       )

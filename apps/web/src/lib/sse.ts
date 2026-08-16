@@ -23,6 +23,15 @@ export async function streamMediaUrl(url: string, onEvent: (event: AgentEvent) =
   return streamFrom('/api/media/youtube', { url }, onEvent, signal)
 }
 
+export async function streamHallucinationLab(prompt: string, onEvent: (event: AgentEvent) => void, signal?: AbortSignal): Promise<void> {
+  return streamFrom('/api/hallucination-lab', { prompt }, onEvent, signal)
+}
+
+export async function streamBeatRunNow(beatId: string, onEvent: (event: AgentEvent) => void, signal?: AbortSignal): Promise<void> {
+  const res = await fetch(`/api/beats/${beatId}/run-now`, { method: 'POST', signal })
+  await consumeSSE(res, onEvent)
+}
+
 // A dropped file or a mic-recorded Blob — same endpoint, ffmpeg reads
 // either. The field name must match FastAPI's `file: UploadFile` param.
 export async function streamMediaUpload(

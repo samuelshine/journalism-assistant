@@ -27,6 +27,7 @@ from events import (
 )
 from router import select_model
 from store import memory
+from tools import fixtures
 from tools.base import Source, ToolResult
 from tools.registry import available, dispatch, schemas_for
 
@@ -100,15 +101,37 @@ async def run(
 
             budget_left = config.MAX_TOOL_CALLS_PER_RUN - tool_calls_used
             active_schemas = schemas if budget_left > 0 else []
-            response = await ollama_client.chat(model, messages, tools=active_schemas)
-            message = response.get("message", {})
-            tool_calls = message.get("tool_calls") or []
 
-            if not tool_calls:
+            # Rare but real: the model occasionally returns a genuinely
+            # empty completion — no content, no tool_calls, but a non-zero
+            # eval_count (confirmed live via dress-rehearsal debugging: it
+            # generated ~170 tokens that never surfaced as content). Most
+            # consistent explanation is a malformed tool-call attempt Ollama's
+            # template silently drops. A same-conditions retry reproduces the
+            # same failure; dropping the tools schema on retry — we only need
+            # plain text at this point anyway — reliably breaks the loop.
+            message, tool_calls, text = {}, [], ""
+            nudged = False
+            for attempt in range(3):
+                retry_schemas = [] if attempt > 0 else active_schemas
+                response = await ollama_client.chat(model, messages, tools=retry_schemas)
+                message = response.get("message", {})
+                tool_calls = message.get("tool_calls") or []
                 text = message.get("content", "").strip()
-                if not text:
-                    yield ErrorEvent(run_id=run_id, message="Model returned an empty answer.", fatal=True)
+                if tool_calls or text:
+                    if nudged:
+                        messages.pop()  # drop the nudge — the real turn continues normally from here
                     break
+                if attempt < 2:
+                    yield ThinkingEvent(run_id=run_id, agent=agent.id, text="Got an empty response — asking again…")
+                    if not nudged:
+                        messages.append({"role": "user", "content": "Please provide your answer now, in plain text."})
+                        nudged = True
+            else:
+                yield ErrorEvent(run_id=run_id, message="Model returned an empty answer after 3 attempts.", fatal=True)
+                break
+
+            if not tool_calls and text:
                 yield AnswerDoneEvent(run_id=run_id, agent=agent.id, text=text, sources=registry.as_dicts())
                 await memory.save(run_id, agent.id, text)
                 break
@@ -130,15 +153,18 @@ async def run(
 
                 step += 1
                 tool = next((t for t in available(agent.tools) if t.name == name), None)
-
-                yield ToolCallEvent(
-                    run_id=run_id,
-                    agent=agent.id,
-                    step=step,
-                    tool=name,
-                    args=args,
-                    cost_hint="repeated call — reusing prior result, no new network cost" if repeated else (tool.cost_hint if tool else None),
+                is_demo_fixture = (
+                    not repeated and config.DEMO_MODE and fixtures.lookup(name, args) is not None
                 )
+
+                if repeated:
+                    cost_hint = "repeated call — reusing prior result, no new network cost"
+                elif is_demo_fixture:
+                    cost_hint = "🎬 Demo Mode — served from a recorded fixture, no live network call"
+                else:
+                    cost_hint = tool.cost_hint if tool else None
+
+                yield ToolCallEvent(run_id=run_id, agent=agent.id, step=step, tool=name, args=args, cost_hint=cost_hint)
 
                 if repeated:
                     result = call_cache[cache_key]
