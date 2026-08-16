@@ -1,4 +1,3 @@
-import { Document, ExternalHyperlink, HeadingLevel, Packer, Paragraph, TextRun } from 'docx'
 import type { Article } from '../types/articles'
 import type { AgentEvent, AgentInfo, SourceRef } from '../types/events'
 
@@ -168,7 +167,7 @@ export function buildArticlePlainText(article: Article): string {
   return `${lines.join('\n').trim()}\n`
 }
 
-function inlineToDocxRuns(text: string, sourcesByIndex: Map<number, SourceRef>): TextRun[] {
+function inlineToDocxRuns(text: string, sourcesByIndex: Map<number, SourceRef>, TextRun: typeof import('docx').TextRun) {
   return tokenizeInline(text).map((t) => {
     if (t.kind === 'bold') return new TextRun({ text: t.text, bold: true })
     if (t.kind === 'cite') {
@@ -182,24 +181,25 @@ function inlineToDocxRuns(text: string, sourcesByIndex: Map<number, SourceRef>):
 // A real .docx, built client-side — no backend round trip, consistent
 // with Markdown/plain-text export already being local-only. Drop caps
 // don't have a clean Word equivalent from generated markup, so the first
-// paragraph just renders as a normal paragraph like the rest.
+// paragraph just renders as a normal paragraph like the rest. `docx` is
+// a ~350KB dependency only this function needs — dynamically imported so
+// it doesn't bloat the initial bundle for people who never click Export.
 export async function buildArticleDocx(article: Article): Promise<Blob> {
+  const { Document, ExternalHyperlink, HeadingLevel, Packer, Paragraph, TextRun } = await import('docx')
   const sourcesByIndex = new Map(article.sources.map((s) => [s.index, s]))
   const blocks = parseArticleBlocks(article.body_markdown)
 
-  const children: Paragraph[] = [
-    new Paragraph({ text: article.title, heading: HeadingLevel.TITLE, spacing: { after: 240 } }),
-  ]
+  const children = [new Paragraph({ text: article.title, heading: HeadingLevel.TITLE, spacing: { after: 240 } })]
 
   for (const block of blocks) {
     if (block.kind === 'heading') {
       children.push(new Paragraph({ text: block.text, heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 120 } }))
     } else if (block.kind === 'bullets') {
       for (const item of block.items) {
-        children.push(new Paragraph({ children: inlineToDocxRuns(item, sourcesByIndex), bullet: { level: 0 } }))
+        children.push(new Paragraph({ children: inlineToDocxRuns(item, sourcesByIndex, TextRun), bullet: { level: 0 } }))
       }
     } else {
-      children.push(new Paragraph({ children: inlineToDocxRuns(block.text, sourcesByIndex), spacing: { after: 200 } }))
+      children.push(new Paragraph({ children: inlineToDocxRuns(block.text, sourcesByIndex, TextRun), spacing: { after: 200 } }))
     }
   }
 

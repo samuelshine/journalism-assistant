@@ -321,7 +321,7 @@ export default function Draft({ activeArticleId, onActiveArticleHandled, agentsB
                   setActive({ ...active, title: e.target.value })
                   scheduleSave({ title: e.target.value })
                 }}
-                className="w-full border-none bg-transparent font-(family-name:--font-display) text-[26px] font-semibold text-(--color-ink) focus:outline-none"
+                className="w-full rounded-sm border-none bg-transparent font-(family-name:--font-display) text-[26px] font-semibold text-(--color-ink) focus:bg-(--color-highlight)/20 focus:outline-none"
               />
               <span className="ml-3 shrink-0 font-(family-name:--font-sans) text-[10.5px] text-(--color-ink-faint)">
                 {saveState === 'saving' ? 'saving…' : saveState === 'saved' ? 'saved' : ''}
@@ -493,7 +493,7 @@ export default function Draft({ activeArticleId, onActiveArticleHandled, agentsB
                 }}
                 onBlur={stopEditing}
                 rows={20}
-                className="min-h-[50vh] flex-1 resize-none border-none bg-transparent font-(family-name:--font-serif) text-[16px] leading-[1.7] text-(--color-ink) focus:outline-none"
+                className="min-h-[50vh] flex-1 resize-none rounded-sm border-none bg-transparent font-(family-name:--font-serif) text-[16px] leading-[1.7] text-(--color-ink) focus:bg-(--color-highlight)/10 focus:outline-none"
               />
             ) : (
               // A <div>, not a <button> — AnswerView renders its own citation
