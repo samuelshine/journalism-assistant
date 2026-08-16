@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AnswerView from '../components/AnswerView'
 import NotebookEntry from '../components/NotebookEntry'
 import { buildNotebook } from '../lib/notebook'
@@ -60,14 +60,14 @@ function BeatCard({ beat, onDeleted, onRefresh }: { beat: Beat; onDeleted: () =>
   const [running, setRunning] = useState(false)
   const [liveEvents, setLiveEvents] = useState<AgentEvent[]>([])
 
-  async function loadBriefs() {
+  const loadBriefs = useCallback(async () => {
     const res = await fetch(`/api/beats/${beat.id}/briefs`)
     setBriefs(await res.json())
-  }
+  }, [beat.id])
 
   useEffect(() => {
     if (expanded) loadBriefs()
-  }, [expanded])
+  }, [expanded, loadBriefs])
 
   async function runNow() {
     setRunning(true)

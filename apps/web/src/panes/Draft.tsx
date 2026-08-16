@@ -407,7 +407,10 @@ export default function Draft({ activeArticleId, onActiveArticleHandled, agentsB
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') toolMode === 'section' ? submitSection() : submitRevision()
+                      if (e.key === 'Enter') {
+                        if (toolMode === 'section') submitSection()
+                        else submitRevision()
+                      }
                       if (e.key === 'Escape') cancelTool()
                     }}
                     placeholder={
