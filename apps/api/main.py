@@ -106,7 +106,11 @@ async def health():
     # this doesn't count toward overall_ok the way the other checks do
     checks["whisper"] = {"ok": True, "warm": whisper_is_warm(), "model": config.WHISPER_MODEL_SIZE}
 
-    overall_ok = all(c.get("ok") for k, c in checks.items() if k != "whisper")
+    # In Demo Mode nothing touches the network, so a failed wifi probe isn't
+    # a real problem — counting it would falsely flag "needs attention"
+    # mid-demo over the one thing Demo Mode exists to not depend on.
+    ignored = {"whisper"} | ({"external_api"} if config.DEMO_MODE else set())
+    overall_ok = all(c.get("ok") for k, c in checks.items() if k not in ignored)
     return {"ok": overall_ok, "checks": checks, "demo_mode": config.DEMO_MODE}
 
 
