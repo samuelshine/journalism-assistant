@@ -44,6 +44,7 @@ AGENT = Agent(
     tools=[
         "extract_claims",
         "gdelt_search",
+        "guardian_search",
         "wikipedia_summary",
         "wikidata_entity",
         "openalex_search",

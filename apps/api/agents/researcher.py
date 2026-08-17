@@ -33,6 +33,7 @@ AGENT = Agent(
     system_prompt=SYSTEM_PROMPT,
     tools=[
         "gdelt_search",
+        "guardian_search",
         "rss_fetch",
         "wikipedia_summary",
         "wikidata_entity",

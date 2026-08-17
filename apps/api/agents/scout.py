@@ -21,6 +21,6 @@ AGENT = Agent(
     name="Scout",
     description="Checks what's moving right now across live news feeds — is this worth a story today.",
     system_prompt=SYSTEM_PROMPT,
-    tools=["gdelt_search", "rss_fetch", "wikipedia_summary", "search_memory"],
+    tools=["gdelt_search", "guardian_search", "rss_fetch", "wikipedia_summary", "search_memory"],
     color="agent-scout",
 )

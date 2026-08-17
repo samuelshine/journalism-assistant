@@ -84,10 +84,10 @@ alone. Add any of these to `.env` to unlock one more source:
 
 | Key | Unlocks | Get one |
 |---|---|---|
-| `GUARDIAN_API_KEY` | The Guardian's news archive | [open-platform.theguardian.com](https://open-platform.theguardian.com/access/) — free, instant |
-| `DATA_GOV_IN_KEY` | Indian government open datasets | [data.gov.in](https://data.gov.in/user/register) — free, instant |
-| `NEWSAPI_KEY` | Broader news search | [newsapi.org](https://newsapi.org/register) — free dev tier |
-| `YOUTUBE_API_KEY` | YouTube search/metadata | [console.cloud.google.com](https://console.cloud.google.com/) — free, needs a Google Cloud project |
+| `GUARDIAN_API_KEY` | A real `guardian_search` tool (Researcher, Scout, Fact-Checker) — The Guardian's archive alongside GDELT's broader sweep | [open-platform.theguardian.com](https://open-platform.theguardian.com/access/) — free, instant |
+| `DATA_GOV_IN_KEY` | Reserved for a future tool — nothing reads it yet | [data.gov.in](https://data.gov.in/user/register) — free, instant |
+| `NEWSAPI_KEY` | Reserved for a future tool — nothing reads it yet | [newsapi.org](https://newsapi.org/register) — free dev tier |
+| `YOUTUBE_API_KEY` | Reserved for a future tool — nothing reads it yet (YouTube *links* already work in Studio via `yt-dlp`, no key needed) | [console.cloud.google.com](https://console.cloud.google.com/) — free, needs a Google Cloud project |
 
 ### Demo Mode — no network required
 

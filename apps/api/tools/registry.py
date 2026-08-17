@@ -9,6 +9,7 @@ from . import (
     fetch_url,
     fixtures,
     gdelt,
+    guardian,
     nominatim,
     openalex,
     readability,
@@ -26,6 +27,7 @@ ALL_TOOLS: dict[str, Tool] = {
     t.name: t
     for t in [
         gdelt.TOOL,
+        guardian.TOOL,
         rss.TOOL,
         wikipedia.TOOL,
         wikidata.TOOL,
